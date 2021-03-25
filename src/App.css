@@ -1,38 +1,230 @@
-.App {
-  text-align: center;
+@import url("https://fonts.googleapis.com/css?family=Roboto:600,400,500,300");
+@import url("https://fonts.googleapis.com/css?family=Montserrat:600,400,500,300");
+
+:root {
+  --darkbackground: #272032;
+  --lightbackground: #3d3051;
+  --verylightbackground: #54426e;
+  --mainaccent: #f9567b;
+  --darkaccent: #d44566;
+  --lighttext: #cdc0e0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  background: var(--darkbackground);
+  padding: 5px;
+  overflow-y: hidden;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.app {
+  width: 375px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.menubar {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  color: var(--mainaccent);
 }
 
-.App-link {
-  color: #61dafb;
+.menubar i {
+  transition: 150ms ease;
 }
 
-@keyframes App-logo-spin {
+.menubar i:hover {
+  color: var(--darkaccent);
+}
+
+.header {
+  font-family: Montserrat;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 20px;
+  transition: 150ms ease;
+}
+
+.logo {
+  margin-left: -60px;
+}
+
+.loader {
+  font-size: 18px;
+  opacity: 0.8;
+  transition: 150ms ease;
+  animation-name: spin;
+  animation-duration: 1500ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes spin {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
   }
+}
+
+.stylingoptions button,
+.allnotesbutton {
+  outline: none;
+  background: var(--lightbackground);
+  border: none;
+  color: var(--mainaccent);
+  font-family: Roboto;
+  font-size: 18px;
+  border-radius: 5px;
+  margin-right: 8px;
+  width: 28px;
+  text-align: center;
+}
+
+.stylingoptions button.activestyle {
+  background: var(--verylightbackground);
+}
+
+.allnotesbutton {
+  width: 40px;
+}
+
+.notepad {
+  min-width: 80%;
+  height: 180px;
+  border-radius: 5px;
+  background: #322a3e;
+  margin-top: 10px;
+  color: var(--lighttext);
+  font-family: Roboto;
+  border: none;
+  transition: 150ms ease;
+  padding: 5px;
+  font-size: 13pt;
+  overflow-y: auto;
+}
+
+.notepad:focus {
+  background-color: #372e46;
+}
+
+[contenteditable] {
+  outline: 0px solid #000000;
+}
+
+.infobar {
+  display: flex;
+  color: var(--mainaccent);
+  font-family: Roboto;
+  margin-top: 5px;
+  font-size: 16px;
+}
+
+.charcount {
+  margin-right: 20px;
+  margin-left: 10px;
+}
+
+.notename {
+  margin-left: auto;
+  margin-right: 10px;
+}
+
+.allnotescont {
+  position: absolute;
+  top: 300px;
+  width: 375px;
+  height: 274px;
+  background: var(--darkbackground);
+  padding-top: 10px;
+  transition: 500ms ease;
+}
+
+.notelist {
+  display: flex;
+  color: var(--lighttext);
+  font-family: Roboto;
+  margin-top: 5px;
+  max-height: 190px;
+  overflow-y: auto;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+}
+
+.notelist div {
+  cursor: pointer;
+  margin: 5px;
+  padding: 5px;
+  background: var(--lightbackground);
+  border-radius: 5px;
+  font-size: 16px;
+  height: 19px;
+  transition: 150ms ease;
+}
+
+.notelist div:hover {
+  background: var(--verylightbackground);
+}
+
+.notelist.deleting div:hover {
+  text-decoration: line-through;
+}
+
+.notelistmode {
+  font-family: Montserrat;
+  text-transform: uppercase;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.newnote {
+  display: flex;
+  justify-content: space-between;
+}
+
+.newnote input {
+  margin-top: 5px;
+  outline: none;
+  background: var(--verylightbackground);
+  color: #fff;
+  border: none;
+  font-size: 16px;
+  padding: 5px;
+  width: 250px;
+  border-radius: 2px;
+}
+
+.newnote input::placeholder {
+  color: var(--darkbackground);
+}
+
+.newnote button {
+  background: var(--darkbackground);
+  color: var(--mainaccent);
+  outline: none;
+  border: none;
+  border-radius: 2px;
+  font-size: 12px;
+  letter-spacing: 0.08929em;
+  padding: 5px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+  font-weight: 500;
+  font-family: Roboto;
+  align-items: center;
+  cursor: pointer;
+  transition: 150ms ease;
+  margin-right: auto;
+  margin-left: 10px;
+}
+
+.newnote button:hover {
+  background: var(--lightbackground);
+}
+
+.newnotemsg {
+  font-family: Roboto;
+  color: var(--mainaccent);
+  font-size: 14px;
+  margin-bottom: 5px;
 }

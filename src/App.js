@@ -1,25 +1,23 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useState } from "react";
+import Note from "./views/note";
+import AllNotes from "./views/allnotes";
+import { views } from "./utils";
 
-function App() {
+const App = () => {
+  const [view, setView] = useState(views.NOTE);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <Note setView={setView} />
+      <div
+        className="allnotescont"
+        style={view === views.ALLNOTES ? { top: "0px" } : null}
+      >
+        <AllNotes setView={setView} />
+      </div>
     </div>
   );
-}
+};
 
 export default App;
