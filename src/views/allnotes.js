@@ -1,11 +1,24 @@
-import React, { useState } from "react";
+/*global chrome*/
+import React, { useState, useEffect } from "react";
 import { views } from "../utils";
 
 const AllNotes = props => {
-  const [noteNames, setNoteNames] = useState(["Main", "Test"]);
+  const [noteNames, setNoteNames] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [deleteMode, setDeleteMode] = useState(false);
   const [msg, setMsg] = useState(null);
+
+  useEffect(() => {
+    chrome.storage.sync.get("allNotes", obj => {
+      const allNotes = obj.allNotes;
+      if (allNotes) {
+        setNoteNames(allNotes);
+      } else {
+        chrome.storage.sync.set({ allNotes: ["main"] });
+        setNoteNames(["main"]);
+      }
+    });
+  }, []);
 
   const newNoteChange = e => {
     setNewNote(e.target.value);
@@ -14,24 +27,44 @@ const AllNotes = props => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    if (!newNote || newNote === "") {
-      setMsg("Name can't be blank!");
-    } else if (noteNames.includes(newNote)) {
-      setMsg("Name must be unique!");
-    } else if (newNote.length > 40) {
-      setMsg("Name too long! (<=40)");
+    if (newNote !== "allNotes") {
+      if (!newNote) {
+        setMsg("Name can't be blank!");
+      } else if (noteNames.includes(newNote)) {
+        setMsg("Name must be unique!");
+      } else if (newNote.length > 40) {
+        setMsg("Name too long! (<=40)");
+      } else if (noteNames.length >= 400) {
+        setMsg("Cannot have more than 400 notes!");
+      } else {
+        const allNotes = [newNote, ...noteNames];
+        setNoteNames(allNotes);
+        chrome.storage.sync.set({ allNotes });
+        setNewNote("");
+      }
     } else {
-      setNoteNames([newNote, ...noteNames]);
-      setNewNote("");
+      setMsg("Invalid note name!");
     }
   };
 
   const selectNote = name => {
+    chrome.storage.sync.set({ curNote: name });
     props.setView(views.NOTE);
+    props.setCurNote(name);
   };
 
   const removeNote = name => {
-    setNoteNames(noteNames.filter(n => n !== name));
+    const allNotes = noteNames.filter(n => n !== name);
+    setNoteNames(allNotes);
+    let newCurNote = null;
+    if (allNotes.length > 0) {
+      if (props.curNote === name) {
+        newCurNote = allNotes[0];
+      } else {
+        newCurNote = props.curNote;
+      }
+    }
+    chrome.storage.sync.set({ allNotes: allNotes, curNote: newCurNote });
   };
 
   const close = () => {
@@ -65,7 +98,7 @@ const AllNotes = props => {
         <form onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Note Name"
+            placeholder="New Note Name"
             value={newNote}
             onChange={newNoteChange}
           ></input>

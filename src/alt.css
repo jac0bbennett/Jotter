@@ -1,0 +1,13 @@
+[data-theme="alt"] {
+  --darkbackground: #272032;
+  --lightbackground: #3d3051;
+  --verylightbackground: #54426e;
+  --mainaccent: #f9567b;
+  --darkaccent: #d44566;
+  --lighttext: #cdc0e0;
+}
+
+[data-theme="alt"] .notepad {
+  background: #322a3e;
+  color: var(--lighttext);
+}
