@@ -6,6 +6,7 @@ const AllNotes = props => {
   const [noteNames, setNoteNames] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [deleteMode, setDeleteMode] = useState(false);
+  const [selectedNotes, setSelectedNotes] = useState([]);
   const [msg, setMsg] = useState(null);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const AllNotes = props => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    if (newNote !== "allNotes") {
+    if (!["allNotes", "curNote"].includes(newNote)) {
       if (!newNote) {
         setMsg("Name can't be blank!");
       } else if (noteNames.includes(newNote)) {
@@ -53,18 +54,33 @@ const AllNotes = props => {
     props.setCurNote(name);
   };
 
-  const removeNote = name => {
-    const allNotes = noteNames.filter(n => n !== name);
+  const selectRemoveNote = name => {
+    setSelectedNotes([...selectedNotes, name]);
+  };
+
+  const unselectRemoveNote = name => {
+    setSelectedNotes([...selectedNotes.filter(n => n !== name)]);
+  };
+
+  const deleteSelected = () => {
+    const allNotes = noteNames.filter(n => !selectedNotes.includes(n));
     setNoteNames(allNotes);
     let newCurNote = null;
     if (allNotes.length > 0) {
-      if (props.curNote === name) {
+      if (selectedNotes.includes(props.curNote)) {
         newCurNote = allNotes[0];
+        props.setCurNote(newCurNote);
       } else {
         newCurNote = props.curNote;
       }
     }
+
+    chrome.storage.sync.remove(selectedNotes);
+
     chrome.storage.sync.set({ allNotes: allNotes, curNote: newCurNote });
+
+    setSelectedNotes([]);
+    setDeleteMode(false);
   };
 
   const close = () => {
@@ -79,12 +95,19 @@ const AllNotes = props => {
         <i
           className="material-icons"
           style={{ marginLeft: "10px", marginRight: "10px", cursor: "pointer" }}
-          title="Remove notes"
-          onClick={() => setDeleteMode(!deleteMode)}
+          title="Toggle Delete Mode"
+          onClick={() => {
+            setSelectedNotes([]);
+            setDeleteMode(!deleteMode);
+          }}
         >
-          {!deleteMode ? "remove_circle_outline" : "remove_circle"}
+          {!deleteMode ? "delete_outline" : "delete"}
         </i>
-        <div className="notelistmode">{deleteMode ? "Delete Mode" : null}</div>
+        {deleteMode ? (
+          <button className="confirmdelete" onClick={deleteSelected}>
+            Delete Selected
+          </button>
+        ) : null}
         <i
           className="material-icons"
           style={{ fontSize: "28px", cursor: "pointer", marginLeft: "auto" }}
@@ -110,8 +133,15 @@ const AllNotes = props => {
         {noteNames.map(name => (
           <div
             key={name}
+            className={selectedNotes.includes(name) ? "massSelected" : null}
             onClick={
-              !deleteMode ? () => selectNote(name) : () => removeNote(name)
+              !deleteMode
+                ? () => selectNote(name)
+                : () => {
+                    !selectedNotes.includes(name)
+                      ? selectRemoveNote(name)
+                      : unselectRemoveNote(name);
+                  }
             }
           >
             {name}
