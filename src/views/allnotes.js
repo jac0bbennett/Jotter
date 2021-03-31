@@ -12,7 +12,7 @@ const AllNotes = props => {
   useEffect(() => {
     chrome.storage.sync.get("allNotes", obj => {
       const allNotes = obj.allNotes;
-      if (allNotes) {
+      if (allNotes && allNotes.length > 0) {
         setNoteNames(allNotes);
       } else {
         chrome.storage.sync.set({ allNotes: ["main"] });
@@ -73,6 +73,10 @@ const AllNotes = props => {
       } else {
         newCurNote = props.curNote;
       }
+    } else {
+      props.setCurNote("main");
+      setNoteNames(["main"]);
+      newCurNote = "main";
     }
 
     chrome.storage.sync.remove(selectedNotes);
