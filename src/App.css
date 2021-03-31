@@ -44,6 +44,7 @@ button {
   justify-content: space-between;
   align-items: center;
   color: var(--mainaccent);
+  height: 30px;
 }
 
 .menubar i {
