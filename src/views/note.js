@@ -63,13 +63,15 @@ const Note = props => {
     });
   }, [props.curNote]);
 
-  const save = v => {
+  const save = (v, callback = null) => {
     setSaving(false);
     chrome.storage.sync.set({ [props.curNote]: v }, () => {
       if (chrome.runtime.lastError) {
         setErrorMsg(
           "Failed to Save! Total data may be exceeding Chrome limits!"
         );
+      } else {
+        if (callback) callback();
       }
     });
     setErrorMsg(null);
@@ -108,7 +110,6 @@ const Note = props => {
   };
 
   const exit = () => {
-    save();
     window.close();
   };
 
@@ -222,7 +223,7 @@ const Note = props => {
         </i>
         <i
           className="material-icons"
-          onClick={exit}
+          onClick={() => save(note, exit)}
           style={{ cursor: "pointer" }}
           title="Exit"
         >
