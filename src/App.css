@@ -187,7 +187,7 @@ button {
 
 .notelist.deleting div {
   animation-name: wobble;
-  animation-duration: 200ms;
+  animation-duration: 250ms;
   animation-iteration-count: infinite;
   animation-timing-function: ease;
 }
@@ -196,14 +196,14 @@ button {
   text-decoration: line-through;
 }
 
-.notelist .massSelected {
+.notelist.deleting div.massSelected {
   background: var(--mainaccent);
   color: var(--darktext);
+  text-decoration: line-through;
 }
 
-.notelist .massSelected:hover {
+.notelist.deleting div.massSelected:hover {
   background: var(--darkaccent);
-  text-decoration: none;
 }
 
 @keyframes wobble {

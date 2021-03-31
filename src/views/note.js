@@ -18,6 +18,7 @@ const Note = props => {
   const [typeTimeout, setTypeTimeout] = useState(null);
 
   const notepad = useRef();
+  const stylebuttons = useRef();
 
   const setTheme = (b = "default") => {
     if (b === "alt") {
@@ -103,6 +104,7 @@ const Note = props => {
       document.execCommand(command)
     );
     notepad.current.focus();
+    checkStyle();
   };
 
   const exit = () => {
@@ -130,7 +132,10 @@ const Note = props => {
 
   useEffect(() => {
     document.addEventListener("click", e => {
-      if (notepad.current && notepad.current.contains(e.target)) {
+      if (
+        (notepad.current && notepad.current.contains(e.target)) ||
+        stylebuttons.current.contains(e.target)
+      ) {
         checkStyle();
       } else if (notepad.current && !notepad.current.contains(e.target)) {
         setBolded(false);
@@ -172,7 +177,7 @@ const Note = props => {
         >
           Jotter
         </div>
-        <div className="stylingoptions">
+        <div className="stylingoptions" ref={stylebuttons}>
           <button
             style={{ fontWeight: "bold" }}
             onClick={() => {
