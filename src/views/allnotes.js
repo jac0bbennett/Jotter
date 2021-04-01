@@ -76,6 +76,7 @@ const AllNotes = props => {
     } else {
       props.setCurNote("main");
       setNoteNames(["main"]);
+      props.setNote("");
       newCurNote = "main";
     }
 

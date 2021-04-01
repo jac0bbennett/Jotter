@@ -5,7 +5,6 @@ import { views } from "../utils";
 import { useLongPress } from "use-long-press";
 
 const Note = props => {
-  const [note, setNote] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -56,12 +55,9 @@ const Note = props => {
   }, []);
 
   useEffect(() => {
-    chrome.storage.sync.get(props.curNote, obj => {
-      setNote(obj[props.curNote] || "");
-      countWords(obj[props.curNote]);
-      setErrorMsg(null);
-    });
-  }, [props.curNote]);
+    countWords(props.notes);
+    setErrorMsg(null);
+  }, [props.notes]);
 
   const save = (v, callback = null) => {
     setSaving(false);
@@ -87,7 +83,7 @@ const Note = props => {
   const handleNotepadChange = event => {
     countWords(event.target.value);
     if (event.target.value.length < 8192) {
-      setNote(event.target.value);
+      props.setNote(event.target.value);
       setSaving(true);
       setErrorMsg(null);
       if (typeTimeout) {
@@ -223,7 +219,7 @@ const Note = props => {
         </i>
         <i
           className="material-icons"
-          onClick={() => save(note, exit)}
+          onClick={() => save(props.note, exit)}
           style={{ cursor: "pointer" }}
           title="Exit"
         >
@@ -232,7 +228,7 @@ const Note = props => {
       </div>
       <ContentEditable
         className="notepad"
-        html={note}
+        html={props.note}
         innerRef={notepad}
         onChange={handleNotepadChange}
         onKeyUp={checkStyle}
