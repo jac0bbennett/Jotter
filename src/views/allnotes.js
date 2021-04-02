@@ -93,6 +93,19 @@ const AllNotes = props => {
     props.setView(views.NOTE);
   };
 
+  const getNameClasses = name => {
+    let classes = null;
+    if (selectedNotes.includes(name)) {
+      classes = "massSelected";
+    }
+
+    if (props.curNote === name) {
+      classes = classes ? classes + " curnote" : "curnote";
+    }
+
+    return classes;
+  };
+
   return (
     <React.Fragment>
       <div className="menubar">
@@ -138,7 +151,8 @@ const AllNotes = props => {
         {noteNames.map(name => (
           <div
             key={name}
-            className={selectedNotes.includes(name) ? "massSelected" : null}
+            className={getNameClasses(name)}
+            title={props.curNote}
             onClick={
               !deleteMode
                 ? () => selectNote(name)

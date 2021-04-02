@@ -207,6 +207,11 @@ button {
   background: var(--darkaccent);
 }
 
+.notelist div.curnote {
+  border-left: 2px solid var(--mainaccent);
+  border-bottom: 2px solid var(--mainaccent);
+}
+
 @keyframes wobble {
   0% {
     transform: rotate(-2deg);
