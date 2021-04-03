@@ -18,6 +18,18 @@ const AllNotes = props => {
         chrome.storage.sync.set({ allNotes: ["main"] });
         setNoteNames(["main"]);
       }
+      let undeleted = [];
+      chrome.storage.sync.get(undefined, obj2 => {
+        for (const n in obj2) {
+          if (
+            !allNotes ||
+            (!allNotes.includes(n) && !["allNotes", "curNote"].includes(n))
+          ) {
+            undeleted.push(n);
+          }
+        }
+        chrome.storage.sync.remove(undeleted);
+      });
     });
   }, []);
 
