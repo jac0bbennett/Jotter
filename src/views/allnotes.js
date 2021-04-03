@@ -164,7 +164,6 @@ const AllNotes = props => {
           <div
             key={name}
             className={getNameClasses(name)}
-            title={props.curNote}
             onClick={
               !deleteMode
                 ? () => selectNote(name)
