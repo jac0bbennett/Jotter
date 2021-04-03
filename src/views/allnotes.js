@@ -67,11 +67,11 @@ const AllNotes = props => {
   };
 
   const selectRemoveNote = name => {
-    setSelectedNotes([...selectedNotes, name]);
+    setSelectedNotes(n => [...n, name]);
   };
 
   const unselectRemoveNote = name => {
-    setSelectedNotes([...selectedNotes.filter(n => n !== name)]);
+    setSelectedNotes(n => n.filter(n => n !== name));
   };
 
   const deleteSelected = () => {
