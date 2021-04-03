@@ -55,9 +55,8 @@ const Note = props => {
   }, []);
 
   useEffect(() => {
-    countWords(props.notes);
-    setErrorMsg(null);
-  }, [props.notes]);
+    countWords(props.note);
+  }, [props.note]);
 
   const save = (v, callback = null) => {
     setSaving(false);
@@ -81,9 +80,8 @@ const Note = props => {
   };
 
   const handleNotepadChange = event => {
-    countWords(event.target.value);
+    props.setNote(event.target.value);
     if (event.target.value.length < 8192) {
-      props.setNote(event.target.value);
       setSaving(true);
       setErrorMsg(null);
       if (typeTimeout) {
