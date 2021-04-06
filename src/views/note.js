@@ -58,6 +58,12 @@ const Note = props => {
     countWords(props.note);
   }, [props.note]);
 
+  useEffect(() => {
+    if (notepad.current) {
+      notepad.current.focus();
+    }
+  }, [props.curNote]);
+
   const save = (v, callback = null) => {
     setSaving(false);
     chrome.storage.sync.set({ [props.curNote]: v }, () => {
