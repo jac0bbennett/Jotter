@@ -59,9 +59,7 @@ const Note = props => {
   }, [props.note]);
 
   useEffect(() => {
-    if (notepad.current) {
-      notepad.current.focus();
-    }
+    notepad.current.focus();
   }, [props.curNote]);
 
   const save = (v, callback = null) => {
