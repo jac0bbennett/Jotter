@@ -55,7 +55,7 @@ const Note = props => {
   }, []);
 
   useEffect(() => {
-    countWords(props.note);
+    countWords(notepad.current.innerText);
   }, [props.note]);
 
   useEffect(() => {
@@ -77,9 +77,8 @@ const Note = props => {
   };
 
   const countWords = (v = "") => {
-    const breaks = v.split("<div>").length - 1;
-    const words = v.split(" ").length;
-    setWordCount(notepad.current.textContent ? words + breaks : 0);
+    const wordCount = v.replaceAll("\n", " ").trim().split(/[ ]+/).length;
+    setWordCount(notepad.current.textContent ? wordCount : 0);
     setCharCount(notepad.current.textContent.length);
   };
 
