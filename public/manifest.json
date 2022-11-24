@@ -1,18 +1,22 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
 
   "name": "Jotter",
   "description": "Jot down multiple notes with a simple notepad.",
   "version": "2.0.3",
 
-  "browser_action": {
-    "default_icon": "icon48.png",
+  "action": {
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    },
+    "default_title": "Jotter",
     "default_popup": "index.html"
   },
 
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "background.js"
   },
 
   "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
