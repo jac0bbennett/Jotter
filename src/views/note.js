@@ -23,18 +23,22 @@ const Note = props => {
     if (b === "alt") {
       chrome.storage.local.set({ theme: "alt" });
       document.body.setAttribute("data-theme", "alt");
-      chrome.browserAction.setIcon({ path: "icon48alt.png" });
+      chrome.action.setIcon({ path: "icon48alt.png" });
+    } else if (b === "jonah") {
+      chrome.storage.local.set({ theme: "jonah" });
+      document.body.setAttribute("data-theme", "jonah");
+      chrome.action.setIcon({ path: "icon48jonah.png" });
     } else {
       chrome.storage.local.set({ theme: null });
       document.body.setAttribute("data-theme", "default");
-      chrome.browserAction.setIcon({ path: "icon48.png" });
+      chrome.action.setIcon({ path: "icon48.png" });
     }
   };
 
   const bind = useLongPress(
     () => {
       chrome.storage.local.get(["theme"], obj => {
-        if (obj.theme && obj.theme === "alt") {
+        if (obj.theme && (obj.theme === "alt" || obj.theme === "jonah")) {
           setTheme("default");
         } else {
           setTheme("alt");
@@ -44,10 +48,23 @@ const Note = props => {
     { threshold: 2000 }
   );
 
+  const bindSecret = useLongPress(
+    () => {
+      if (charCount === 69) {
+        chrome.storage.local.get(["theme"], obj => {
+          setTheme("jonah");
+        });
+      }
+    },
+    { threshold: 2000 }
+  );
+
   useEffect(() => {
     chrome.storage.local.get("theme", obj => {
       if (obj.theme && obj.theme === "alt") {
         setTheme("alt");
+      } else if (obj.theme && obj.theme === "jonah") {
+        setTheme("jonah");
       } else {
         setTheme("default");
       }
@@ -238,7 +255,7 @@ const Note = props => {
       ></ContentEditable>
       {errorMsg ? <div style={{ color: "red" }}>{errorMsg}</div> : null}
       <div className="infobar">
-        <div className="charcount" title="Character Count">
+        <div className="charcount" title="Character Count" {...bindSecret}>
           {charCount}
         </div>
         <div className="wordcount" title="Word Count">

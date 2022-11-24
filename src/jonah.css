@@ -1,0 +1,13 @@
+[data-theme="jonah"] {
+  --darkbackground: #2b2b2b;
+  --lightbackground: #4b4b4b;
+  --verylightbackground: #636060;
+  --mainaccent: #eebeb1;
+  --darkaccent: #f1b4a3;
+  --lighttext: #f8dcd4;
+}
+
+[data-theme="jonah"] .notepad {
+  background: #efece8;
+  color: var(--darkbackground);
+}

@@ -1,6 +1,7 @@
 /*global chrome*/
 import "./App.css";
 import "./alt.css";
+import "./jonah.css";
 import { useState, useEffect } from "react";
 import Note from "./views/note";
 import AllNotes from "./views/allnotes";
