@@ -16,6 +16,8 @@ const Note = props => {
 
   const [typeTimeout, setTypeTimeout] = useState(null);
 
+  const [header, setHeader] = useState("Jotter");
+
   const notepad = useRef();
   const stylebuttons = useRef();
 
@@ -24,14 +26,17 @@ const Note = props => {
       chrome.storage.local.set({ theme: "alt" });
       document.body.setAttribute("data-theme", "alt");
       chrome.action.setIcon({ path: "icon48alt.png" });
+      setHeader("Jotter");
     } else if (b === "jonah") {
       chrome.storage.local.set({ theme: "jonah" });
       document.body.setAttribute("data-theme", "jonah");
       chrome.action.setIcon({ path: "icon48jonah.png" });
+      setHeader("Joner");
     } else {
       chrome.storage.local.set({ theme: null });
       document.body.setAttribute("data-theme", "default");
       chrome.action.setIcon({ path: "icon48.png" });
+      setHeader("Jotter");
     }
   };
 
@@ -190,7 +195,7 @@ const Note = props => {
           }
           {...bind}
         >
-          Jotter
+          {header}
         </div>
         <div className="stylingoptions" ref={stylebuttons}>
           <button
