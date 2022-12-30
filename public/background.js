@@ -4,6 +4,10 @@ chrome.runtime.onStartup.addListener(() => {
       chrome.action.setIcon({
         path: "icon16alt.png"
       });
+    } else if (obj.theme && obj.theme === "jonah") {
+      chrome.action.setIcon({
+        path: "icon16jonah.png"
+      });
     }
   });
 });
