@@ -9,6 +9,7 @@
   --darkaccent: #e4b268;
   --lighttext: #fffae7;
   --darktext: #000000;
+  --linkcolor: #3a7fee;
 }
 
 body {
@@ -64,7 +65,7 @@ button {
 }
 
 .logo {
-  margin-left: -60px;
+  margin-left: -52px;
 }
 
 .loader {
@@ -85,6 +86,11 @@ button {
   }
 }
 
+.stylingoptions {
+  display: flex;
+  align-items: center;
+}
+
 .stylingoptions button {
   outline: none;
   background: var(--lightbackground);
@@ -96,6 +102,7 @@ button {
   border-radius: 5px;
   margin-right: 8px;
   width: 28px;
+  height: 21px;
   text-align: center;
   padding: 0;
 }
@@ -122,10 +129,15 @@ button {
   font-size: 13pt;
   overflow-y: auto;
   opacity: 0.9;
+  z-index: 1;
 }
 
 .notepad:focus {
   opacity: 1;
+}
+
+.notepad a {
+  color: #468cfd;
 }
 
 [contenteditable] {
@@ -150,6 +162,31 @@ button {
   margin-right: 10px;
 }
 
+#link-popup {
+  position: absolute;
+  align-items: center;
+  min-width: 25px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  height: 25px;
+  background: var(--darkbackground);
+  filter: drop-shadow(0px 3px 14px #3b3b3b);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--lightbackground);
+  border-radius: 5px;
+  padding: 2px 5px;
+  overflow: hidden;
+  z-index: 50;
+}
+
+#link-popup a {
+  color: var(--linkcolor);
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .allnotescont {
   position: absolute;
   top: 300px;
@@ -158,6 +195,7 @@ button {
   background: var(--darkbackground);
   padding-top: 10px;
   transition: 500ms ease;
+  z-index: 99;
 }
 
 .notelist {

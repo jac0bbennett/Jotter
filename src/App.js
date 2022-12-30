@@ -13,7 +13,7 @@ const App = () => {
   const [noteContent, setNoteContent] = useState("");
 
   useEffect(() => {
-    chrome.storage.sync.get("curNote", cur => {
+    chrome.storage.sync.get("curNote", (cur) => {
       if (cur["curNote"]) {
         setCurNote(cur["curNote"]);
       } else {
@@ -24,7 +24,8 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    chrome.storage.sync.get(curNote, obj => {
+    chrome.storage.sync.get(curNote, (obj) => {
+      console.log(obj);
       setNoteContent(obj[curNote] || "");
     });
   }, [curNote]);

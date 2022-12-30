@@ -4,7 +4,7 @@ import ContentEditable from "react-contenteditable";
 import { views } from "../utils";
 import { useLongPress } from "use-long-press";
 
-const Note = props => {
+const Note = (props) => {
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -13,6 +13,12 @@ const Note = props => {
   const [bolded, setBolded] = useState(false);
   const [italic, setItalic] = useState(false);
   const [underlined, setUnderlined] = useState(false);
+
+  const [showLinkPopup, setShowLinkPopup] = useState(false);
+  const [linkInfo, setLinkInfo] = useState({
+    top: 0,
+    url: "",
+  });
 
   const [typeTimeout, setTypeTimeout] = useState(null);
 
@@ -42,7 +48,7 @@ const Note = props => {
 
   const bind = useLongPress(
     () => {
-      chrome.storage.local.get(["theme"], obj => {
+      chrome.storage.local.get(["theme"], (obj) => {
         if (obj.theme && (obj.theme === "alt" || obj.theme === "jonah")) {
           setTheme("default");
         } else {
@@ -56,7 +62,7 @@ const Note = props => {
   const bindSecret = useLongPress(
     () => {
       if (charCount === 69) {
-        chrome.storage.local.get(["theme"], obj => {
+        chrome.storage.local.get(["theme"], (obj) => {
           setTheme("jonah");
         });
       }
@@ -65,7 +71,7 @@ const Note = props => {
   );
 
   useEffect(() => {
-    chrome.storage.local.get("theme", obj => {
+    chrome.storage.local.get("theme", (obj) => {
       if (obj.theme && obj.theme === "alt") {
         setTheme("alt");
       } else if (obj.theme && obj.theme === "jonah") {
@@ -85,6 +91,7 @@ const Note = props => {
   }, [props.curNote]);
 
   const save = (v, callback = null) => {
+    console.log("saved", v);
     setSaving(false);
     chrome.storage.sync.set({ [props.curNote]: v }, () => {
       if (chrome.runtime.lastError) {
@@ -104,7 +111,7 @@ const Note = props => {
     setCharCount(notepad.current.textContent.length);
   };
 
-  const handleNotepadChange = event => {
+  const handleNotepadChange = (event) => {
     props.setNote(event.target.value);
     if (event.target.value.length < 8192) {
       setSaving(true);
@@ -118,7 +125,7 @@ const Note = props => {
     }
   };
 
-  const stylize = command => {
+  const stylize = (command) => {
     const selection = document.getSelection();
     notepad.current.textContent.replace(
       selection,
@@ -126,6 +133,24 @@ const Note = props => {
     );
     notepad.current.focus();
     checkStyle();
+  };
+
+  const createLink = () => {
+    const selection = document.getSelection();
+
+    let selectionText = selection.toString();
+
+    if (selectionText !== "") {
+      if (selection && !selectionText.startsWith("http")) {
+        selectionText = "http://" + selectionText;
+      }
+
+      notepad.current.textContent.replace(
+        selection,
+        document.execCommand("createLink", false, selectionText)
+      );
+    }
+    notepad.current.focus();
   };
 
   const exit = () => {
@@ -151,28 +176,45 @@ const Note = props => {
   };
 
   useEffect(() => {
-    document.addEventListener("click", e => {
+    document.addEventListener("click", (e) => {
       if (
+        notepad.current &&
+        notepad.current.contains(e.target) &&
+        e.target.nodeName === "A"
+      ) {
+        setShowLinkPopup(true);
+        const linkRect = e.target.getBoundingClientRect();
+        setLinkInfo({
+          top: linkRect.top - 30,
+          url: e.target.getAttribute("href"),
+        });
+        setBolded(false);
+        setItalic(false);
+        setUnderlined(false);
+      } else if (
         (notepad.current && notepad.current.contains(e.target)) ||
         stylebuttons.current.contains(e.target)
       ) {
         checkStyle();
-      } else if (notepad.current && !notepad.current.contains(e.target)) {
+        setShowLinkPopup(false);
+      } else {
         setBolded(false);
         setItalic(false);
         setUnderlined(false);
+        setShowLinkPopup(false);
       }
     });
     return () => document.removeEventListener("click");
   }, []);
 
-  const handlePaste = e => {
+  const handlePaste = (e) => {
     e.preventDefault();
     const txt = (e.originalEvent || e).clipboardData.getData("text/plain");
     document.execCommand("insertHtml", false, txt);
   };
 
-  const handleKeyPress = e => {
+  const handleKeyPress = (e) => {
+    setShowLinkPopup(false);
     if (e.keyCode === 9) {
       e.preventDefault();
       document.execCommand("insertText", false, "    ");
@@ -193,7 +235,7 @@ const Note = props => {
           style={
             saving ? { opacity: 0.8, transform: "translateX(24px)" } : null
           }
-          {...bind}
+          {...bind()}
         >
           {header}
         </div>
@@ -231,6 +273,20 @@ const Note = props => {
           >
             U
           </button>
+          <button
+            onClick={() => {
+              createLink();
+            }}
+            className={false ? "activestyle" : null}
+            title="Create link"
+          >
+            <i
+              class="material-icons"
+              style={{ fontSize: "19px", paddingTop: "1px" }}
+            >
+              link
+            </i>
+          </button>
         </div>
         <i
           className="material-icons"
@@ -249,6 +305,17 @@ const Note = props => {
           clear
         </i>
       </div>
+      <div
+        id="link-popup"
+        style={{
+          display: showLinkPopup ? "flex" : "none",
+          top: linkInfo.top + "px",
+        }}
+      >
+        <a href={linkInfo.url} target="_blank">
+          {linkInfo.url}
+        </a>
+      </div>
       <ContentEditable
         className="notepad"
         html={props.note}
@@ -260,7 +327,7 @@ const Note = props => {
       ></ContentEditable>
       {errorMsg ? <div style={{ color: "red" }}>{errorMsg}</div> : null}
       <div className="infobar">
-        <div className="charcount" title="Character Count" {...bindSecret}>
+        <div className="charcount" title="Character Count" {...bindSecret()}>
           {charCount}
         </div>
         <div className="wordcount" title="Word Count">

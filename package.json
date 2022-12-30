@@ -37,6 +37,6 @@
   },
   "devDependencies": {
     "react-contenteditable": "^3.3.5",
-    "use-long-press": "^1.0.5"
+    "use-long-press": "^2.0.2"
   }
 }
