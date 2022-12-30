@@ -18,7 +18,6 @@ const App = () => {
         setCurNote(cur["curNote"]);
       } else {
         setCurNote("main");
-        chrome.storage.sync.set({ curNote: "main" });
       }
     });
   }, []);
