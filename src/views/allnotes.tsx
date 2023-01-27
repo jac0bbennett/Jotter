@@ -5,10 +5,10 @@ import {
   SetStateAction,
   useState
 } from "react";
-import { views } from "../utils";
+import { Views } from "../interfaces";
 
 interface AllNotesProps {
-  setView: Dispatch<SetStateAction<string>>;
+  setView: Dispatch<SetStateAction<Views>>;
   setCurNote: Dispatch<SetStateAction<string | null>>;
   curNote: string | null;
   setNote: Dispatch<SetStateAction<string>>;
@@ -76,7 +76,7 @@ const AllNotes = (props: AllNotesProps) => {
 
   const selectNote = (name: string) => {
     chrome.storage.sync.set({ curNote: name });
-    props.setView(views.NOTE);
+    props.setView(Views.NOTE);
     props.setCurNote(name);
   };
 
@@ -89,26 +89,28 @@ const AllNotes = (props: AllNotesProps) => {
   };
 
   const deleteSelected = () => {
-    const allNotes = props.noteNames.filter(n => !selectedNotes.includes(n));
+    let allNotes = props.noteNames.filter(n => !selectedNotes.includes(n));
     props.setNoteNames(allNotes);
     let newCurNote = null;
     if (allNotes.length > 0) {
       if (props.curNote && selectedNotes.includes(props.curNote)) {
-        newCurNote = props.noteNames[0];
+        newCurNote = allNotes[0];
         props.setCurNote(newCurNote);
       } else {
         newCurNote = props.curNote;
       }
     } else {
-      props.setCurNote("main");
-      props.setNoteNames(["main"]);
+      const defaultNote = "main";
+      props.setCurNote(defaultNote);
+      props.setNoteNames([defaultNote]);
       props.setNote("");
-      newCurNote = "main";
+      newCurNote = defaultNote;
+      allNotes = [defaultNote];
     }
 
     chrome.storage.sync.remove(selectedNotes);
 
-    chrome.storage.sync.set({ allNotes: props.noteNames, curNote: newCurNote });
+    chrome.storage.sync.set({ allNotes: allNotes, curNote: newCurNote });
 
     setSelectedNotes([]);
     setDeleteMode(false);
@@ -116,7 +118,7 @@ const AllNotes = (props: AllNotesProps) => {
 
   const close = () => {
     setDeleteMode(false);
-    props.setView(views.NOTE);
+    props.setView(Views.NOTE);
   };
 
   const getNameClasses = (name: string) => {
