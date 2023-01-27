@@ -1,31 +1,50 @@
-/*global chrome*/
-import React, { useState, useRef, useEffect } from "react";
-import ContentEditable from "react-contenteditable";
-import { views } from "../utils";
+import {
+  Dispatch,
+  SetStateAction,
+  useState,
+  useRef,
+  useEffect,
+  KeyboardEvent
+} from "react";
+import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
+import { views } from "../../utils";
 import { useLongPress } from "use-long-press";
+import LinkPopup from "./linkPopup";
+import { LinkInfo } from "../../interfaces";
 
-const Note = (props) => {
+interface NoteProps {
+  setView: Dispatch<SetStateAction<string>>;
+  curNote: string | null;
+  note: string;
+  setNote: (note: string) => void;
+}
+
+const Note = (props: NoteProps) => {
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
   const [saving, setSaving] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [bolded, setBolded] = useState(false);
   const [italic, setItalic] = useState(false);
   const [underlined, setUnderlined] = useState(false);
 
   const [showLinkPopup, setShowLinkPopup] = useState(false);
-  const [linkInfo, setLinkInfo] = useState({
+  const [linkInfo, setLinkInfo] = useState<LinkInfo>({
     top: 0,
     url: "",
+    target: null
   });
 
-  const [typeTimeout, setTypeTimeout] = useState(null);
+  const [typeTimeout, setTypeTimeout] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const [header, setHeader] = useState("Jotter");
 
-  const notepad = useRef();
-  const stylebuttons = useRef();
+  const notepad = useRef<HTMLInputElement>(null);
+  const linkPopup = useRef<HTMLDivElement>(null);
+  const stylebuttons = useRef<HTMLDivElement>(null);
 
   const setTheme = (b = "default") => {
     if (b === "alt") {
@@ -48,7 +67,7 @@ const Note = (props) => {
 
   const bind = useLongPress(
     () => {
-      chrome.storage.local.get(["theme"], (obj) => {
+      chrome.storage.local.get(["theme"], obj => {
         if (obj.theme && (obj.theme === "alt" || obj.theme === "jonah")) {
           setTheme("default");
         } else {
@@ -62,7 +81,7 @@ const Note = (props) => {
   const bindSecret = useLongPress(
     () => {
       if (charCount === 69) {
-        chrome.storage.local.get(["theme"], (obj) => {
+        chrome.storage.local.get(["theme"], obj => {
           setTheme("jonah");
         });
       }
@@ -71,7 +90,7 @@ const Note = (props) => {
   );
 
   useEffect(() => {
-    chrome.storage.local.get("theme", (obj) => {
+    chrome.storage.local.get("theme", obj => {
       if (obj.theme && obj.theme === "alt") {
         setTheme("alt");
       } else if (obj.theme && obj.theme === "jonah") {
@@ -83,17 +102,16 @@ const Note = (props) => {
   }, []);
 
   useEffect(() => {
-    countWords(notepad.current.innerText);
+    countWords(notepad.current?.innerText);
   }, [props.note]);
 
   useEffect(() => {
-    notepad.current.focus();
+    notepad.current?.focus();
   }, [props.curNote]);
 
-  const save = (v, callback = null) => {
-    console.log("saved", v);
+  const save = (v: string, callback?: () => void) => {
     setSaving(false);
-    chrome.storage.sync.set({ [props.curNote]: v }, () => {
+    chrome.storage.sync.set({ [props.curNote!]: v }, () => {
       if (chrome.runtime.lastError) {
         setErrorMsg(
           "Failed to Save! Total data may be exceeding Chrome limits!"
@@ -107,36 +125,38 @@ const Note = (props) => {
 
   const countWords = (v = "") => {
     const wordCount = v.replaceAll("\n", " ").trim().split(/[ ]+/).length;
-    setWordCount(notepad.current.textContent ? wordCount : 0);
-    setCharCount(notepad.current.textContent.length);
+    setWordCount(notepad.current?.textContent ? wordCount : 0);
+    setCharCount(notepad.current?.textContent?.length ?? 0);
   };
 
-  const handleNotepadChange = (event) => {
-    props.setNote(event.target.value);
-    if (event.target.value.length < 8192) {
+  const handleNoteChange = (value: string) => {
+    props.setNote(value);
+    if (value.length < 8192) {
       setSaving(true);
       setErrorMsg(null);
       if (typeTimeout) {
         clearTimeout(typeTimeout);
       }
-      setTypeTimeout(setTimeout(() => save(event.target.value), 650));
+      setTypeTimeout(setTimeout(() => save(value), 650));
     } else {
       setErrorMsg("Note exceeding max length! Cannot save!");
     }
   };
 
-  const stylize = (command) => {
+  const handleNotepadChange = (event: ContentEditableEvent) =>
+    handleNoteChange(event.target.value);
+
+  const stylize = (command: string) => {
     const selection = document.getSelection();
-    notepad.current.textContent.replace(
-      selection,
-      document.execCommand(command)
-    );
+    if (!selection || !notepad.current) return;
+    document.execCommand(command);
     notepad.current.focus();
     checkStyle();
   };
 
   const createLink = () => {
     const selection = document.getSelection();
+    if (!selection || !notepad.current) return;
 
     let selectionText = selection.toString();
 
@@ -144,11 +164,7 @@ const Note = (props) => {
       if (selection && !selectionText.startsWith("http")) {
         selectionText = "http://" + selectionText;
       }
-
-      notepad.current.textContent.replace(
-        selection,
-        document.execCommand("createLink", false, selectionText)
-      );
+      document.execCommand("createLink", false, selectionText);
     }
     notepad.current.focus();
   };
@@ -176,24 +192,28 @@ const Note = (props) => {
   };
 
   useEffect(() => {
-    document.addEventListener("click", (e) => {
+    const clickEventListner = (e: MouseEvent) => {
+      if (!(e.target instanceof HTMLElement)) return;
       if (
         notepad.current &&
         notepad.current.contains(e.target) &&
-        e.target.nodeName === "A"
+        e.target instanceof HTMLAnchorElement
       ) {
         setShowLinkPopup(true);
         const linkRect = e.target.getBoundingClientRect();
         setLinkInfo({
           top: linkRect.top - 30,
-          url: e.target.getAttribute("href"),
+          url: e.target.getAttribute("href") ?? "",
+          target: e.target
         });
         setBolded(false);
         setItalic(false);
         setUnderlined(false);
+      } else if (linkPopup.current && linkPopup.current.contains(e.target)) {
+        setShowLinkPopup(true);
       } else if (
         (notepad.current && notepad.current.contains(e.target)) ||
-        stylebuttons.current.contains(e.target)
+        stylebuttons.current?.contains(e.target)
       ) {
         checkStyle();
         setShowLinkPopup(false);
@@ -203,37 +223,40 @@ const Note = (props) => {
         setUnderlined(false);
         setShowLinkPopup(false);
       }
-    });
-    return () => document.removeEventListener("click");
+    };
+
+    document.addEventListener("click", clickEventListner);
+    return () => document.removeEventListener("click", clickEventListner);
   }, []);
 
-  const handlePaste = (e) => {
+  const handlePaste = (e: any) => {
     e.preventDefault();
     const txt = (e.originalEvent || e).clipboardData.getData("text/plain");
     document.execCommand("insertHtml", false, txt);
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLElement>) => {
+    e.preventDefault();
     setShowLinkPopup(false);
-    if (e.keyCode === 9) {
+    if (e.key === "Tab") {
       e.preventDefault();
       document.execCommand("insertText", false, "    ");
     }
   };
 
   return (
-    <React.Fragment>
+    <>
       <div className="menubar">
         <i
           className="material-icons loader"
-          style={!saving ? { opacity: "0" } : null}
+          style={!saving ? { opacity: "0" } : undefined}
         >
           autorenew
         </i>
         <div
           className="header logo"
           style={
-            saving ? { opacity: 0.8, transform: "translateX(24px)" } : null
+            saving ? { opacity: 0.8, transform: "translateX(24px)" } : undefined
           }
           {...bind()}
         >
@@ -246,7 +269,7 @@ const Note = (props) => {
               setBolded(!bolded);
               stylize("bold");
             }}
-            className={bolded ? "activestyle" : null}
+            className={bolded ? "activestyle" : undefined}
             title="Bold"
           >
             B
@@ -257,7 +280,7 @@ const Note = (props) => {
               setItalic(!italic);
               stylize("italic");
             }}
-            className={italic ? "activestyle" : null}
+            className={italic ? "activestyle" : undefined}
             title="Italic"
           >
             I
@@ -268,7 +291,7 @@ const Note = (props) => {
               setUnderlined(!underlined);
               stylize("underline");
             }}
-            className={underlined ? "activestyle" : null}
+            className={underlined ? "activestyle" : undefined}
             title="Underline"
           >
             U
@@ -277,11 +300,11 @@ const Note = (props) => {
             onClick={() => {
               createLink();
             }}
-            className={false ? "activestyle" : null}
+            className={false ? "activestyle" : undefined}
             title="Create link"
           >
             <i
-              class="material-icons"
+              className="material-icons"
               style={{ fontSize: "19px", paddingTop: "1px" }}
             >
               link
@@ -305,25 +328,22 @@ const Note = (props) => {
           clear
         </i>
       </div>
-      <div
-        id="link-popup"
-        style={{
-          display: showLinkPopup ? "flex" : "none",
-          top: linkInfo.top + "px",
-        }}
-      >
-        <a href={linkInfo.url} target="_blank">
-          {linkInfo.url}
-        </a>
-      </div>
+      {showLinkPopup ? (
+        <LinkPopup
+          linkInfo={linkInfo}
+          setLinkInfo={setLinkInfo}
+          setNote={handleNoteChange}
+          notepadRef={notepad}
+          ref={linkPopup}
+        />
+      ) : null}
       <ContentEditable
         className="notepad"
         html={props.note}
         innerRef={notepad}
         onChange={handleNotepadChange}
-        onKeyUp={checkStyle}
-        onKeyDown={handleKeyPress}
         onPaste={handlePaste}
+        onKeyDown={handleKeyPress}
       ></ContentEditable>
       {errorMsg ? <div style={{ color: "red" }}>{errorMsg}</div> : null}
       <div className="infobar">
@@ -337,7 +357,7 @@ const Note = (props) => {
           {props.curNote}
         </div>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 

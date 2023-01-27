@@ -1,31 +1,36 @@
-/*global chrome*/
 import "./App.css";
 import "./alt.css";
 import "./jonah.css";
 import { useState, useEffect } from "react";
-import Note from "./views/note";
+import Note from "./views/note/note";
 import AllNotes from "./views/allnotes";
 import { views } from "./utils";
 
 const App = () => {
   const [view, setView] = useState(views.NOTE);
-  const [curNote, setCurNote] = useState(null);
+  const [curNote, setCurNote] = useState<string | null>(null);
+  const [noteNames, setNoteNames] = useState<string[]>([]);
   const [noteContent, setNoteContent] = useState("");
 
   useEffect(() => {
-    chrome.storage.sync.get("curNote", (cur) => {
+    chrome.storage.sync.get(["curNote", "allNotes"], cur => {
       if (cur["curNote"]) {
         setCurNote(cur["curNote"]);
       } else {
         setCurNote("main");
         chrome.storage.sync.set({ curNote: "main" });
       }
+      if (cur["allNotes"]) {
+        setNoteNames(cur["allNotes"]);
+      } else {
+        setNoteNames(["main"]);
+      }
     });
   }, []);
 
   useEffect(() => {
-    chrome.storage.sync.get(curNote, (obj) => {
-      console.log(obj);
+    chrome.storage.sync.get(curNote, obj => {
+      if (curNote === null) return;
       setNoteContent(obj[curNote] || "");
     });
   }, [curNote]);
@@ -40,13 +45,15 @@ const App = () => {
       />
       <div
         className="allnotescont"
-        style={view === views.ALLNOTES ? { top: "0px" } : null}
+        style={view === views.ALLNOTES ? { top: "0px" } : undefined}
       >
         <AllNotes
           setView={setView}
           curNote={curNote}
           setCurNote={setCurNote}
           setNote={setNoteContent}
+          noteNames={noteNames}
+          setNoteNames={setNoteNames}
         />
       </div>
     </div>
