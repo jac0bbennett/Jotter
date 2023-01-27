@@ -4,10 +4,10 @@ import "./jonah.css";
 import { useState, useEffect } from "react";
 import Note from "./views/note/note";
 import AllNotes from "./views/allnotes";
-import { views } from "./utils";
+import { Views } from "./interfaces";
 
 const App = () => {
-  const [view, setView] = useState(views.NOTE);
+  const [view, setView] = useState(Views.NOTE);
   const [curNote, setCurNote] = useState<string | null>(null);
   const [noteNames, setNoteNames] = useState<string[]>([]);
   const [noteContent, setNoteContent] = useState("");
@@ -45,7 +45,7 @@ const App = () => {
       />
       <div
         className="allnotescont"
-        style={view === views.ALLNOTES ? { top: "0px" } : undefined}
+        style={view === Views.ALLNOTES ? { top: "0px" } : undefined}
       >
         <AllNotes
           setView={setView}

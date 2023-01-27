@@ -7,13 +7,13 @@ import {
   KeyboardEvent
 } from "react";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
-import { views } from "../../utils";
 import { useLongPress } from "use-long-press";
 import LinkPopup from "./linkPopup";
 import { LinkInfo } from "../../interfaces";
+import { Views } from "../../interfaces";
 
 interface NoteProps {
-  setView: Dispatch<SetStateAction<string>>;
+  setView: Dispatch<SetStateAction<Views>>;
   curNote: string | null;
   note: string;
   setNote: (note: string) => void;
@@ -236,7 +236,6 @@ const Note = (props: NoteProps) => {
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLElement>) => {
-    e.preventDefault();
     setShowLinkPopup(false);
     if (e.key === "Tab") {
       e.preventDefault();
@@ -314,7 +313,7 @@ const Note = (props: NoteProps) => {
         <i
           className="material-icons"
           style={{ fontSize: "22px", cursor: "pointer" }}
-          onClick={() => props.setView(views.ALLNOTES)}
+          onClick={() => props.setView(Views.ALLNOTES)}
           title="View All Notes"
         >
           source
