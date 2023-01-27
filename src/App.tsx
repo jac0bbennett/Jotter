@@ -1,16 +1,15 @@
-/*global chrome*/
 import "./App.css";
 import "./alt.css";
 import "./jonah.css";
 import { useState, useEffect } from "react";
-import Note from "./views/note";
+import Note from "./views/note/note";
 import AllNotes from "./views/allnotes";
 import { views } from "./utils";
 
 const App = () => {
   const [view, setView] = useState(views.NOTE);
-  const [curNote, setCurNote] = useState(null);
-  const [noteNames, setNoteNames] = useState([]);
+  const [curNote, setCurNote] = useState<string | null>(null);
+  const [noteNames, setNoteNames] = useState<string[]>([]);
   const [noteContent, setNoteContent] = useState("");
 
   useEffect(() => {
@@ -30,8 +29,8 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    chrome.storage.sync.get(curNote, (obj) => {
-      console.log(obj);
+    chrome.storage.sync.get(curNote, obj => {
+      if (curNote === null) return;
       setNoteContent(obj[curNote] || "");
     });
   }, [curNote]);
@@ -46,7 +45,7 @@ const App = () => {
       />
       <div
         className="allnotescont"
-        style={view === views.ALLNOTES ? { top: "0px" } : null}
+        style={view === views.ALLNOTES ? { top: "0px" } : undefined}
       >
         <AllNotes
           setView={setView}
