@@ -9,7 +9,7 @@ import {
   FormEvent,
   ForwardedRef
 } from "react";
-import { LinkInfo } from "../../interfaces";
+import { LinkInfo } from "../../types";
 
 interface LinkPopupProps {
   linkInfo: LinkInfo;

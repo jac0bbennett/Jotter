@@ -5,15 +5,12 @@ import {
   SetStateAction,
   useState
 } from "react";
-import { Views } from "../interfaces";
+import { Views } from "../types";
+import { NotesState } from "../hooks/useNotes";
 
 interface AllNotesProps {
+  notesState: NotesState;
   setView: Dispatch<SetStateAction<Views>>;
-  setCurNote: Dispatch<SetStateAction<string | null>>;
-  curNote: string | null;
-  setNote: Dispatch<SetStateAction<string>>;
-  noteNames: string[];
-  setNoteNames: Dispatch<SetStateAction<string[]>>;
 }
 
 const AllNotes = (props: AllNotesProps) => {
@@ -22,31 +19,6 @@ const AllNotes = (props: AllNotesProps) => {
   const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
   const [msg, setMsg] = useState<string | null>(null);
 
-  // TODO: Cleanup logic may still be useful at somepoint
-  // useEffect(() => {
-  //   chrome.storage.sync.get("allNotes", obj => {
-  //     const allNotes = obj.allNotes;
-  //     if (allNotes && allNotes.length > 0) {
-  //       setNoteNames(allNotes);
-  //     } else {
-  //       chrome.storage.sync.set({ allNotes: ["main"], curNote: "main" });
-  //       setNoteNames(["main"]);
-  //     }
-  //     // let undeleted = [];
-  //     // chrome.storage.sync.get(undefined, obj2 => {
-  //     //   for (const n in obj2) {
-  //     //     if (
-  //     //       !allNotes ||
-  //     //       (!allNotes.includes(n) && !["allNotes", "curNote"].includes(n))
-  //     //     ) {
-  //     //       undeleted.push(n);
-  //     //     }
-  //     //   }
-  //     //   chrome.storage.sync.remove(undeleted);
-  //     // });
-  //   });
-  // }, []);
-
   const newNoteChange = (e: ChangeEvent<HTMLInputElement>) => {
     setNewNote(e.target.value);
     setMsg(null);
@@ -54,30 +26,18 @@ const AllNotes = (props: AllNotesProps) => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!["allNotes", "curNote"].includes(newNote)) {
-      if (!newNote) {
-        setMsg("Name can't be blank!");
-      } else if (props.noteNames.includes(newNote)) {
-        setMsg("Name must be unique!");
-      } else if (newNote.length > 40) {
-        setMsg("Name too long! (<=40)");
-      } else if (props.noteNames.length >= 400) {
-        setMsg("Cannot have more than 400 notes!");
-      } else {
-        const allNotes = [newNote, ...props.noteNames];
-        props.setNoteNames(allNotes);
-        chrome.storage.sync.set({ allNotes });
-        setNewNote("");
-      }
-    } else {
-      setMsg("Invalid note name!");
+
+    try {
+      props.notesState.addNote(newNote);
+      setNewNote("");
+    } catch (e) {
+      if (e instanceof Error) setMsg(e.message);
     }
   };
 
   const selectNote = (name: string) => {
-    chrome.storage.sync.set({ curNote: name });
     props.setView(Views.NOTE);
-    props.setCurNote(name);
+    props.notesState.setCurNote(name);
   };
 
   const selectRemoveNote = (name: string) => {
@@ -89,28 +49,7 @@ const AllNotes = (props: AllNotesProps) => {
   };
 
   const deleteSelected = () => {
-    let allNotes = props.noteNames.filter(n => !selectedNotes.includes(n));
-    props.setNoteNames(allNotes);
-    let newCurNote = null;
-    if (allNotes.length > 0) {
-      if (props.curNote && selectedNotes.includes(props.curNote)) {
-        newCurNote = allNotes[0];
-        props.setCurNote(newCurNote);
-      } else {
-        newCurNote = props.curNote;
-      }
-    } else {
-      const defaultNote = "main";
-      props.setCurNote(defaultNote);
-      props.setNoteNames([defaultNote]);
-      props.setNote("");
-      newCurNote = defaultNote;
-      allNotes = [defaultNote];
-    }
-
-    chrome.storage.sync.remove(selectedNotes);
-
-    chrome.storage.sync.set({ allNotes: allNotes, curNote: newCurNote });
+    props.notesState.deleteNotes(selectedNotes);
 
     setSelectedNotes([]);
     setDeleteMode(false);
@@ -127,7 +66,7 @@ const AllNotes = (props: AllNotesProps) => {
       classes = "massSelected";
     }
 
-    if (props.curNote === name) {
+    if (props.notesState.curNote === name) {
       classes = classes ? classes + " curnote" : "curnote";
     }
 
@@ -177,7 +116,7 @@ const AllNotes = (props: AllNotesProps) => {
       </div>
       {msg ? <div className="newnotemsg">{msg}</div> : null}
       <div className={!deleteMode ? "notelist" : "notelist deleting"}>
-        {props.noteNames.map(name => (
+        {props.notesState.allNotes.map(name => (
           <div
             key={name}
             className={getNameClasses(name)}

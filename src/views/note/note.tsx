@@ -9,14 +9,13 @@ import {
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import { useLongPress } from "use-long-press";
 import LinkPopup from "./linkPopup";
-import { LinkInfo } from "../../interfaces";
-import { Views } from "../../interfaces";
+import { LinkInfo, MAX_NOTE_LENGTH_BYTES } from "../../types";
+import { Views } from "../../types";
+import { NotesState } from "../../hooks/useNotes";
 
 interface NoteProps {
+  notesState: NotesState;
   setView: Dispatch<SetStateAction<Views>>;
-  curNote: string | null;
-  note: string;
-  setNote: (note: string) => void;
 }
 
 const Note = (props: NoteProps) => {
@@ -103,15 +102,15 @@ const Note = (props: NoteProps) => {
 
   useEffect(() => {
     countWords(notepad.current?.innerText);
-  }, [props.note]);
+  }, [props.notesState.noteContent]);
 
   useEffect(() => {
     notepad.current?.focus();
-  }, [props.curNote]);
+  }, [props.notesState.curNote]);
 
   const save = (v: string, callback?: () => void) => {
     setSaving(false);
-    chrome.storage.sync.set({ [props.curNote!]: v }, () => {
+    chrome.storage.sync.set({ [props.notesState.curNote!]: v }, () => {
       if (chrome.runtime.lastError) {
         setErrorMsg(
           "Failed to Save! Total data may be exceeding Chrome limits!"
@@ -130,8 +129,8 @@ const Note = (props: NoteProps) => {
   };
 
   const handleNoteChange = (value: string) => {
-    props.setNote(value);
-    if (value.length < 8192) {
+    props.notesState.setNoteContent(value);
+    if (value.length < MAX_NOTE_LENGTH_BYTES) {
       setSaving(true);
       setErrorMsg(null);
       if (typeTimeout) {
@@ -320,7 +319,7 @@ const Note = (props: NoteProps) => {
         </i>
         <i
           className="material-icons"
-          onClick={() => save(props.note, exit)}
+          onClick={() => save(props.notesState.noteContent, exit)}
           style={{ cursor: "pointer" }}
           title="Exit"
         >
@@ -338,7 +337,7 @@ const Note = (props: NoteProps) => {
       ) : null}
       <ContentEditable
         className="notepad"
-        html={props.note}
+        html={props.notesState.noteContent}
         innerRef={notepad}
         onChange={handleNotepadChange}
         onPaste={handlePaste}
@@ -353,7 +352,7 @@ const Note = (props: NoteProps) => {
           {wordCount}
         </div>
         <div className="notename" title="Note name">
-          {props.curNote}
+          {props.notesState.curNote}
         </div>
       </div>
     </>
