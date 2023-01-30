@@ -124,7 +124,8 @@ button {
   color: var(--darktext);
   font-family: Roboto;
   border: none;
-  transition: 150ms ease;
+  /* if not using default theme the transition can be jarring on open */
+  /* transition: 150ms ease; */
   padding: 5px;
   font-size: 13pt;
   overflow-y: auto;

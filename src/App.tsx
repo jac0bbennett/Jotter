@@ -4,16 +4,19 @@ import "./jonah.css";
 import { useState } from "react";
 import Note from "./views/note/note";
 import AllNotes from "./views/allnotes";
-import { DEFAULT_NOTE_NAME, Views } from "./types";
+import { Views } from "./types";
 import { useNotes } from "./hooks/useNotes";
+import { useTheme } from "./hooks/useTheme";
 
 const App = () => {
   const [view, setView] = useState(Views.NOTE);
   const notesState = useNotes();
 
+  const theme = useTheme();
+
   return (
     <div className="app">
-      <Note setView={setView} notesState={notesState} />
+      <Note setView={setView} notesState={notesState} theme={theme} />
       <div
         className="allnotescont"
         style={view === Views.ALLNOTES ? { top: "0px" } : undefined}

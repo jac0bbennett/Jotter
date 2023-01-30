@@ -4,18 +4,20 @@ import {
   useState,
   useRef,
   useEffect,
-  KeyboardEvent
+  KeyboardEvent,
 } from "react";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import { useLongPress } from "use-long-press";
 import LinkPopup from "./linkPopup";
-import { LinkInfo, MAX_NOTE_LENGTH_BYTES } from "../../types";
+import { LinkInfo, MAX_NOTE_LENGTH_BYTES, Themes } from "../../types";
 import { Views } from "../../types";
 import { NotesState } from "../../hooks/useNotes";
+import { ThemeState } from "../../hooks/useTheme";
 
 interface NoteProps {
   notesState: NotesState;
   setView: Dispatch<SetStateAction<Views>>;
+  theme: ThemeState;
 }
 
 const Note = (props: NoteProps) => {
@@ -24,6 +26,7 @@ const Note = (props: NoteProps) => {
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // TODO: convert style buttons to reducer or object
   const [bolded, setBolded] = useState(false);
   const [italic, setItalic] = useState(false);
   const [underlined, setUnderlined] = useState(false);
@@ -32,47 +35,26 @@ const Note = (props: NoteProps) => {
   const [linkInfo, setLinkInfo] = useState<LinkInfo>({
     top: 0,
     url: "",
-    target: null
+    target: null,
   });
 
   const [typeTimeout, setTypeTimeout] = useState<ReturnType<
     typeof setTimeout
   > | null>(null);
 
-  const [header, setHeader] = useState("Jotter");
+  const { theme, setTheme } = props.theme;
 
   const notepad = useRef<HTMLInputElement>(null);
   const linkPopup = useRef<HTMLDivElement>(null);
   const stylebuttons = useRef<HTMLDivElement>(null);
 
-  const setTheme = (b = "default") => {
-    if (b === "alt") {
-      chrome.storage.local.set({ theme: "alt" });
-      document.body.setAttribute("data-theme", "alt");
-      chrome.action.setIcon({ path: "icon48alt.png" });
-      setHeader("Jotter");
-    } else if (b === "jonah") {
-      chrome.storage.local.set({ theme: "jonah" });
-      document.body.setAttribute("data-theme", "jonah");
-      chrome.action.setIcon({ path: "icon48jonah.png" });
-      setHeader("Joner");
-    } else {
-      chrome.storage.local.set({ theme: null });
-      document.body.setAttribute("data-theme", "default");
-      chrome.action.setIcon({ path: "icon48.png" });
-      setHeader("Jotter");
-    }
-  };
-
   const bind = useLongPress(
     () => {
-      chrome.storage.local.get(["theme"], obj => {
-        if (obj.theme && (obj.theme === "alt" || obj.theme === "jonah")) {
-          setTheme("default");
-        } else {
-          setTheme("alt");
-        }
-      });
+      if (theme && (theme === "alt" || theme === "jonah")) {
+        setTheme(Themes.DEFAULT);
+      } else {
+        setTheme(Themes.ALT);
+      }
     },
     { threshold: 2000 }
   );
@@ -80,25 +62,11 @@ const Note = (props: NoteProps) => {
   const bindSecret = useLongPress(
     () => {
       if (charCount === 69) {
-        chrome.storage.local.get(["theme"], obj => {
-          setTheme("jonah");
-        });
+        setTheme(Themes.JONAH);
       }
     },
     { threshold: 2000 }
   );
-
-  useEffect(() => {
-    chrome.storage.local.get("theme", obj => {
-      if (obj.theme && obj.theme === "alt") {
-        setTheme("alt");
-      } else if (obj.theme && obj.theme === "jonah") {
-        setTheme("jonah");
-      } else {
-        setTheme("default");
-      }
-    });
-  }, []);
 
   useEffect(() => {
     countWords(notepad.current?.innerText);
@@ -110,16 +78,14 @@ const Note = (props: NoteProps) => {
 
   const save = (v: string, callback?: () => void) => {
     setSaving(false);
-    chrome.storage.sync.set({ [props.notesState.curNote!]: v }, () => {
-      if (chrome.runtime.lastError) {
-        setErrorMsg(
-          "Failed to Save! Total data may be exceeding Chrome limits!"
-        );
-      } else {
+    try {
+      props.notesState.syncNoteContent(props.notesState.curNote, v, () => {
         if (callback) callback();
-      }
-    });
-    setErrorMsg(null);
+        setErrorMsg(null);
+      });
+    } catch (e) {
+      if (e instanceof Error) setErrorMsg(e.message);
+    }
   };
 
   const countWords = (v = "") => {
@@ -203,7 +169,7 @@ const Note = (props: NoteProps) => {
         setLinkInfo({
           top: linkRect.top - 30,
           url: e.target.getAttribute("href") ?? "",
-          target: e.target
+          target: e.target,
         });
         setBolded(false);
         setItalic(false);
@@ -258,7 +224,9 @@ const Note = (props: NoteProps) => {
           }
           {...bind()}
         >
-          {header}
+          {theme === Themes.ALT || theme === Themes.DEFAULT
+            ? "Jotter"
+            : "Joner"}
         </div>
         <div className="stylingoptions" ref={stylebuttons}>
           <button
@@ -298,6 +266,7 @@ const Note = (props: NoteProps) => {
             onClick={() => {
               createLink();
             }}
+            // eslint-disable-next-line no-constant-condition
             className={false ? "activestyle" : undefined}
             title="Create link"
           >

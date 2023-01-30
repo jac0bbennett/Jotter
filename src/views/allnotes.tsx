@@ -3,7 +3,7 @@ import {
   Dispatch,
   FormEvent,
   SetStateAction,
-  useState
+  useState,
 } from "react";
 import { Views } from "../types";
 import { NotesState } from "../hooks/useNotes";
@@ -37,15 +37,15 @@ const AllNotes = (props: AllNotesProps) => {
 
   const selectNote = (name: string) => {
     props.setView(Views.NOTE);
-    props.notesState.setCurNote(name);
+    props.notesState.syncCurNote(name);
   };
 
   const selectRemoveNote = (name: string) => {
-    setSelectedNotes(n => [...n, name]);
+    setSelectedNotes((n) => [...n, name]);
   };
 
   const unselectRemoveNote = (name: string) => {
-    setSelectedNotes(n => n.filter(n => n !== name));
+    setSelectedNotes((n) => n.filter((n) => n !== name));
   };
 
   const deleteSelected = () => {
@@ -116,7 +116,7 @@ const AllNotes = (props: AllNotesProps) => {
       </div>
       {msg ? <div className="newnotemsg">{msg}</div> : null}
       <div className={!deleteMode ? "notelist" : "notelist deleting"}>
-        {props.notesState.allNotes.map(name => (
+        {props.notesState.allNotes.map((name) => (
           <div
             key={name}
             className={getNameClasses(name)}
