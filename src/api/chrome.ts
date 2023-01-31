@@ -3,30 +3,28 @@ import { ALL_NOTES_KEY, CURRENT_NOTE_KEY, BaseAppState } from "../types";
 
 export const getInitialNoteData = (callback: (data: BaseAppState) => void) => {
   console.log("getInitialNoteData");
-  chrome.storage.sync.get([CURRENT_NOTE_KEY, ALL_NOTES_KEY], (data) =>
+  chrome.storage.sync.get([CURRENT_NOTE_KEY, ALL_NOTES_KEY], data =>
     callback(data as BaseAppState)
   );
 };
 
 export const getNoteNames = (callback: (data: string[]) => void) => {
   console.log("getNoteNames");
-  chrome.storage.sync.get(ALL_NOTES_KEY, (data) =>
+  chrome.storage.sync.get(ALL_NOTES_KEY, data =>
     callback(data[ALL_NOTES_KEY] as string[])
   );
 };
 
 export const getCurrentNote = (callback: (data: string) => void) => {
   console.log("getCurrentNote");
-  chrome.storage.local.get(CURRENT_NOTE_KEY, (data) =>
+  chrome.storage.local.get(CURRENT_NOTE_KEY, data =>
     callback(data[CURRENT_NOTE_KEY] as string)
   );
 };
 
 export const getNote = (noteName: string, callback: (data: string) => void) => {
   console.log("getNote");
-  chrome.storage.sync.get(noteName, (data) =>
-    callback(data[noteName] as string)
-  );
+  chrome.storage.sync.get(noteName, data => callback(data[noteName] as string));
 };
 
 export const setCurrentNote = (noteName: string) => {
@@ -60,17 +58,17 @@ export const setBaseAppState = (newState: BaseAppState) => {
 
 export const setTheme = (theme: Themes | null) => {
   console.log("setTheme");
-  if (theme === Themes.ALT) {
-    chrome.storage.local.set({ theme: "alt" });
-    document.body.setAttribute("data-theme", "alt");
-    chrome.action.setIcon({ path: "icon48alt.png" });
-  } else if (theme === Themes.JONAH) {
-    chrome.storage.local.set({ theme: "jonah" });
-    document.body.setAttribute("data-theme", "jonah");
-    chrome.action.setIcon({ path: "icon48jonah.png" });
-  } else {
-    chrome.storage.local.set({ theme: null });
-    document.body.setAttribute("data-theme", "default");
-    chrome.action.setIcon({ path: "icon48.png" });
+  chrome.storage.local.set({ theme });
+  document.body.setAttribute("data-theme", theme ?? "default");
+  switch (theme) {
+    case Themes.ALT:
+      chrome.action.setIcon({ path: "icon48alt.png" });
+      break;
+    case Themes.JONAH:
+      chrome.action.setIcon({ path: "icon48jonah.png" });
+      break;
+    default:
+      chrome.action.setIcon({ path: "icon48.png" });
+      break;
   }
 };

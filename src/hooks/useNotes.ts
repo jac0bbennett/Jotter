@@ -4,7 +4,7 @@ import {
   BaseAppState,
   MAX_NOTE_COUNT,
   MAX_TITLE_LENGTH,
-  PROHIBITED_NOTE_NAMES,
+  PROHIBITED_NOTE_NAMES
 } from "../types";
 import * as chromeApi from "../api/chrome";
 
@@ -29,7 +29,7 @@ type Action =
 const initialState: State = {
   allNotes: [],
   curNote: DEFAULT_NOTE_NAME,
-  noteContent: "",
+  noteContent: ""
 };
 
 export type NotesState = {
@@ -38,11 +38,7 @@ export type NotesState = {
   noteContent: string;
   syncAllNotes: (allNotes: string[]) => void;
   syncCurNote: (curNote: string) => void;
-  syncNoteContent: (
-    noteName: string,
-    noteContent: string,
-    callback?: () => void
-  ) => void;
+  syncNoteContent: (callback?: () => void) => void;
   setNoteContent: (noteContent: string) => void;
   deleteNotes: (notes: string[]) => void;
   addNote: (noteName: string) => void;
@@ -89,19 +85,16 @@ export const useNotes = (): NotesState => {
 
   const syncCurNote = (curNote: string) => {
     if (curNote === null) return;
-    chromeApi.getNote(curNote, (note) => {
+    chromeApi.getNote(curNote, note => {
       setNoteContent(note || "");
     });
     chromeApi.setCurrentNote(curNote);
     dispatch({ type: "setCurNote", payload: [curNote] });
   };
 
-  const syncNoteContent = (
-    curNote: string,
-    noteContent: string,
-    callback?: () => void
-  ) => {
-    chromeApi.setNote(curNote, noteContent, () => {
+  const syncNoteContent = (callback?: () => void) => {
+    console.log(state);
+    chromeApi.setNote(state.curNote, state.noteContent, () => {
       if (chrome.runtime.lastError) {
         throw new Error(
           "Failed to Save! Total data may be exceeding Chrome limits!"
@@ -134,7 +127,7 @@ export const useNotes = (): NotesState => {
   };
 
   const deleteNotes = (noteNames: string[]) => {
-    let allNotes = state.allNotes.filter((n) => !noteNames.includes(n));
+    let allNotes = state.allNotes.filter(n => !noteNames.includes(n));
 
     let newCurNote = null;
     if (allNotes.length > 0) {
@@ -157,7 +150,7 @@ export const useNotes = (): NotesState => {
   };
 
   const getInitialData = () => {
-    chromeApi.getInitialNoteData((data) => {
+    chromeApi.getInitialNoteData(data => {
       let allNotes = data.allNotes;
       let curNote = data.curNote;
 
@@ -167,15 +160,15 @@ export const useNotes = (): NotesState => {
 
         chromeApi.setBaseAppState({
           allNotes,
-          curNote,
+          curNote
         });
       }
 
-      getNoteData(data.curNote, (note) => {
+      getNoteData(data.curNote, note => {
         setAppState({
           allNotes,
           curNote,
-          noteContent: note || "",
+          noteContent: note || ""
         });
       });
     });
@@ -192,7 +185,7 @@ export const useNotes = (): NotesState => {
       setNoteContent,
       addNote,
       deleteNotes,
-      getNoteData,
+      getNoteData
     }),
     [state]
   );
