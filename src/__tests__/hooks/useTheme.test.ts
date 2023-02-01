@@ -6,11 +6,12 @@ import { act } from "react-dom/test-utils";
 
 describe("useTheme", () => {
   beforeAll(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     global.chrome = chromeMock as any;
 
     Object.defineProperty(global.document, "documentElement", {
       writable: true,
-      value: document.createElement("div")
+      value: document.createElement("div"),
     });
   });
 
@@ -33,7 +34,7 @@ describe("useTheme", () => {
     // Assert
     expect(result.current.theme).toBe(Themes.ALT);
     expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: "icon48alt.png"
+      path: "icon48alt.png",
     });
     expect(document.body.getAttribute("data-theme")).toBe("alt");
   });
@@ -52,7 +53,7 @@ describe("useTheme", () => {
     // Assert
     expect(result.current.theme).toBe(Themes.JONAH);
     expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: "icon48jonah.png"
+      path: "icon48jonah.png",
     });
     expect(document.body.getAttribute("data-theme")).toBe("jonah");
   });
@@ -73,10 +74,10 @@ describe("useTheme", () => {
 
     // Assert
     expect(chromeMock.storage.local.set).toHaveBeenCalledWith({
-      theme: Themes.DEFAULT
+      theme: Themes.DEFAULT,
     });
     expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: "icon48.png"
+      path: "icon48.png",
     });
     expect(document.body.getAttribute("data-theme")).toBe("default");
   });
@@ -98,10 +99,10 @@ describe("useTheme", () => {
 
     // Assert
     expect(chromeMock.storage.local.set).toHaveBeenCalledWith({
-      theme: Themes.ALT
+      theme: Themes.ALT,
     });
     expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: "icon48alt.png"
+      path: "icon48alt.png",
     });
     expect(document.body.getAttribute("data-theme")).toBe("alt");
   });
@@ -123,10 +124,10 @@ describe("useTheme", () => {
 
     // Assert
     expect(chromeMock.storage.local.set).toHaveBeenCalledWith({
-      theme: Themes.JONAH
+      theme: Themes.JONAH,
     });
     expect(chrome.action.setIcon).toHaveBeenCalledWith({
-      path: "icon48jonah.png"
+      path: "icon48jonah.png",
     });
     expect(document.body.getAttribute("data-theme")).toBe("jonah");
   });

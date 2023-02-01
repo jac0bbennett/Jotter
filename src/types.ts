@@ -30,5 +30,5 @@ export const PROHIBITED_NOTE_NAMES = [CURRENT_NOTE_KEY, ALL_NOTES_KEY];
 export const DEFAULT_NOTE_NAME = "main";
 
 export const MAX_NOTE_LENGTH_BYTES = 8150;
-export const MAX_TITLE_LENGTH = 40;
+export const MAX_TITLE_LENGTH = 30;
 export const MAX_NOTE_COUNT = 50;

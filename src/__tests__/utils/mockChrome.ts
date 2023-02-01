@@ -3,15 +3,18 @@ export const chromeMock = {
     local: {
       get: jest.fn(),
       set: jest.fn(),
-      remove: jest.fn()
+      remove: jest.fn(),
     },
     sync: {
       get: jest.fn(),
       set: jest.fn(),
-      remove: jest.fn()
-    }
+      remove: jest.fn(),
+    },
   },
   action: {
-    setIcon: jest.fn()
-  }
+    setIcon: jest.fn(),
+  },
+  runtime: {
+    lastError: {},
+  },
 };

@@ -3,28 +3,30 @@ import { ALL_NOTES_KEY, CURRENT_NOTE_KEY, BaseAppState } from "../types";
 
 export const getInitialNoteData = (callback: (data: BaseAppState) => void) => {
   console.log("getInitialNoteData");
-  chrome.storage.sync.get([CURRENT_NOTE_KEY, ALL_NOTES_KEY], data =>
+  chrome.storage.sync.get([CURRENT_NOTE_KEY, ALL_NOTES_KEY], (data) =>
     callback(data as BaseAppState)
   );
 };
 
 export const getNoteNames = (callback: (data: string[]) => void) => {
   console.log("getNoteNames");
-  chrome.storage.sync.get(ALL_NOTES_KEY, data =>
+  chrome.storage.sync.get(ALL_NOTES_KEY, (data) =>
     callback(data[ALL_NOTES_KEY] as string[])
   );
 };
 
 export const getCurrentNote = (callback: (data: string) => void) => {
   console.log("getCurrentNote");
-  chrome.storage.local.get(CURRENT_NOTE_KEY, data =>
+  chrome.storage.local.get(CURRENT_NOTE_KEY, (data) =>
     callback(data[CURRENT_NOTE_KEY] as string)
   );
 };
 
 export const getNote = (noteName: string, callback: (data: string) => void) => {
   console.log("getNote");
-  chrome.storage.sync.get(noteName, data => callback(data[noteName] as string));
+  chrome.storage.sync.get(noteName, (data) =>
+    callback(data[noteName] as string)
+  );
 };
 
 export const setCurrentNote = (noteName: string) => {

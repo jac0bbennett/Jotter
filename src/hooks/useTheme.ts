@@ -12,17 +12,21 @@ export const useTheme = (): ThemeState => {
 
   useEffect(() => {
     chrome.storage.local.get(THEME_KEY, (obj) => {
-      if (obj.theme && obj.theme === Themes.ALT) {
-        setTheme(Themes.ALT);
-      } else if (obj.theme && obj.theme === Themes.JONAH) {
-        setTheme(Themes.JONAH);
-      } else {
-        setTheme(Themes.DEFAULT);
+      switch (obj.theme) {
+        case Themes.ALT:
+          setTheme(Themes.ALT);
+          break;
+        case Themes.JONAH:
+          setTheme(Themes.JONAH);
+          break;
+        default:
+          setTheme(Themes.DEFAULT);
+          break;
       }
     });
   }, []);
 
-  const setTheme = (newTheme = Themes.DEFAULT) => {
+  const setTheme = (newTheme: Themes) => {
     chromeApi.setTheme(newTheme);
     setCurrentTheme(newTheme);
   };

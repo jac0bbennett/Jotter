@@ -129,13 +129,13 @@ button {
   padding: 5px;
   font-size: 13pt;
   overflow-y: auto;
-  opacity: 0.9;
+  /* opacity: 0.9; */
   z-index: 1;
 }
 
-.notepad:focus {
+/* .notepad:focus {
   opacity: 1;
-}
+} */
 
 .notepad a {
   color: #468cfd;

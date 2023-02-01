@@ -4,7 +4,8 @@ import {
   BaseAppState,
   MAX_NOTE_COUNT,
   MAX_TITLE_LENGTH,
-  PROHIBITED_NOTE_NAMES
+  PROHIBITED_NOTE_NAMES,
+  MAX_NOTE_LENGTH_BYTES,
 } from "../types";
 import * as chromeApi from "../api/chrome";
 
@@ -29,7 +30,7 @@ type Action =
 const initialState: State = {
   allNotes: [],
   curNote: DEFAULT_NOTE_NAME,
-  noteContent: ""
+  noteContent: "",
 };
 
 export type NotesState = {
@@ -38,7 +39,7 @@ export type NotesState = {
   noteContent: string;
   syncAllNotes: (allNotes: string[]) => void;
   syncCurNote: (curNote: string) => void;
-  syncNoteContent: (callback?: () => void) => void;
+  syncNoteContent: (noteContent: string, callback?: () => void) => void;
   setNoteContent: (noteContent: string) => void;
   deleteNotes: (notes: string[]) => void;
   addNote: (noteName: string) => void;
@@ -84,50 +85,70 @@ export const useNotes = (): NotesState => {
   };
 
   const syncCurNote = (curNote: string) => {
-    if (curNote === null) return;
-    chromeApi.getNote(curNote, note => {
+    if (!curNote) return;
+    chromeApi.getNote(curNote, (note) => {
       setNoteContent(note || "");
     });
-    chromeApi.setCurrentNote(curNote);
-    dispatch({ type: "setCurNote", payload: [curNote] });
+
+    if (state.allNotes.includes(curNote)) {
+      chromeApi.setCurrentNote(curNote);
+      dispatch({ type: "setCurNote", payload: [curNote] });
+    } else {
+      validateNoteName(curNote);
+
+      const newAllNotes = [curNote, ...state.allNotes];
+      syncBaseAppState({ curNote, allNotes: newAllNotes });
+    }
   };
 
-  const syncNoteContent = (callback?: () => void) => {
+  const syncNoteContent = (
+    noteContent: string = state.noteContent,
+    callback?: (error?: Error) => void
+  ) => {
     console.log(state);
-    chromeApi.setNote(state.curNote, state.noteContent, () => {
+    chromeApi.setNote(state.curNote, noteContent, () => {
       if (chrome.runtime.lastError) {
-        throw new Error(
-          "Failed to Save! Total data may be exceeding Chrome limits!"
+        callback?.(
+          new Error(
+            "Failed to Save! Total data may be exceeding Chrome limits!"
+          )
         );
       } else {
-        if (callback) callback();
+        callback?.();
       }
     });
   };
 
   const setNoteContent = (noteContent: string) => {
     dispatch({ type: "setNoteContent", payload: [noteContent] });
+    if (noteContent.length > MAX_NOTE_LENGTH_BYTES) {
+      throw new Error("Note exceeding max length! Cannot save!");
+    }
   };
 
-  const addNote = (noteName: string) => {
+  const validateNoteName = (noteName: string) => {
     if (PROHIBITED_NOTE_NAMES.includes(noteName)) {
       throw new Error("Invalid note name!");
     } else if (!noteName) {
       throw new Error("Name can't be blank!");
     } else if (state.allNotes.includes(noteName)) {
       throw new Error("Name must be unique!");
-    } else if (noteName.length > 40) {
+    } else if (noteName.length > MAX_TITLE_LENGTH) {
       throw new Error(`Name too long! (<=${MAX_TITLE_LENGTH})`);
     } else if (state.allNotes.length >= MAX_NOTE_COUNT) {
       throw new Error(`Cannot have more than ${MAX_NOTE_COUNT} notes!`);
     }
+  };
+
+  const addNote = (noteName: string) => {
+    validateNoteName(noteName);
 
     const allNotes = [noteName, ...state.allNotes];
     syncAllNotes(allNotes);
   };
 
   const deleteNotes = (noteNames: string[]) => {
-    let allNotes = state.allNotes.filter(n => !noteNames.includes(n));
+    let allNotes = state.allNotes.filter((n) => !noteNames.includes(n));
 
     let newCurNote = null;
     if (allNotes.length > 0) {
@@ -150,25 +171,26 @@ export const useNotes = (): NotesState => {
   };
 
   const getInitialData = () => {
-    chromeApi.getInitialNoteData(data => {
+    chromeApi.getInitialNoteData((data) => {
       let allNotes = data.allNotes;
       let curNote = data.curNote;
 
       if (!data.allNotes || !data.curNote) {
         allNotes = data.allNotes || [DEFAULT_NOTE_NAME];
-        curNote = data.curNote || DEFAULT_NOTE_NAME;
+        curNote =
+          data.curNote || data.allNotes ? data.allNotes[0] : DEFAULT_NOTE_NAME;
 
         chromeApi.setBaseAppState({
           allNotes,
-          curNote
+          curNote,
         });
       }
 
-      getNoteData(data.curNote, note => {
+      getNoteData(curNote, (note) => {
         setAppState({
           allNotes,
           curNote,
-          noteContent: note || ""
+          noteContent: note || "",
         });
       });
     });
@@ -185,7 +207,7 @@ export const useNotes = (): NotesState => {
       setNoteContent,
       addNote,
       deleteNotes,
-      getNoteData
+      getNoteData,
     }),
     [state]
   );

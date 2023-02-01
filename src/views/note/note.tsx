@@ -4,7 +4,7 @@ import {
   useState,
   useRef,
   useEffect,
-  KeyboardEvent
+  KeyboardEvent,
 } from "react";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import { useLongPress } from "use-long-press";
@@ -35,7 +35,7 @@ const Note = (props: NoteProps) => {
   const [linkInfo, setLinkInfo] = useState<LinkInfo>({
     top: 0,
     url: "",
-    target: null
+    target: null,
   });
 
   const [typeTimeout, setTypeTimeout] = useState<ReturnType<
@@ -78,14 +78,10 @@ const Note = (props: NoteProps) => {
 
   const save = (v: string, callback?: () => void) => {
     setSaving(false);
-    try {
-      props.notesState.syncNoteContent(() => {
-        if (callback) callback();
-        setErrorMsg(null);
-      });
-    } catch (e) {
-      if (e instanceof Error) setErrorMsg(e.message);
-    }
+    props.notesState.syncNoteContent(v, (error?: Error) => {
+      callback?.();
+      setErrorMsg(error?.message ?? null);
+    });
   };
 
   const countWords = (v = "") => {
@@ -95,16 +91,15 @@ const Note = (props: NoteProps) => {
   };
 
   const handleNoteChange = (value: string) => {
-    // TODO: check length in hook and throw error
-    props.notesState.setNoteContent(value);
-    if (value.length < MAX_NOTE_LENGTH_BYTES) {
-      setSaving(true);
-      setErrorMsg(null);
-      if (typeTimeout) {
-        clearTimeout(typeTimeout);
-      }
+    setSaving(true);
+    setErrorMsg(null);
+    if (typeTimeout) {
+      clearTimeout(typeTimeout);
+    }
+    try {
+      props.notesState.setNoteContent(value);
       setTypeTimeout(setTimeout(() => save(value), 650));
-    } else {
+    } catch (e) {
       setErrorMsg("Note exceeding max length! Cannot save!");
     }
   };
@@ -170,7 +165,7 @@ const Note = (props: NoteProps) => {
         setLinkInfo({
           top: linkRect.top - 30,
           url: e.target.getAttribute("href") ?? "",
-          target: e.target
+          target: e.target,
         });
         setBolded(false);
         setItalic(false);
