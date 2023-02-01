@@ -7,9 +7,9 @@ import {
   SetStateAction,
   Dispatch,
   FormEvent,
-  ForwardedRef
+  ForwardedRef,
 } from "react";
-import { LinkInfo } from "../../types";
+import { LinkInfo } from "../types";
 
 interface LinkPopupProps {
   linkInfo: LinkInfo;
@@ -35,16 +35,16 @@ const LinkPopup = forwardRef(
     };
 
     const saveEditedLink = () => {
-      if (!props.linkInfo.target) return;
+      if (!props.linkInfo.target || !props.notepadRef.current) return;
       props.linkInfo.target.href = editedUrl;
-      props.setLinkInfo(prevState => {
+      props.setLinkInfo((prevState) => {
         return {
           url: editedUrl,
           top: prevState.top,
-          target: prevState.target
+          target: prevState.target,
         };
       });
-      props.setNote(props.notepadRef.current!.innerHTML);
+      props.setNote(props.notepadRef.current.innerHTML);
       setEditMode(false);
     };
 
@@ -58,7 +58,7 @@ const LinkPopup = forwardRef(
         <div
           id="link-popup"
           style={{
-            top: props.linkInfo.top + "px"
+            top: props.linkInfo.top + "px",
           }}
           ref={linkPopupRef}
         >
@@ -66,14 +66,14 @@ const LinkPopup = forwardRef(
             public
           </i>
           {!editMode ? (
-            <a href={props.linkInfo.url} target="_blank">
+            <a href={props.linkInfo.url} target="_blank" rel="noreferrer">
               {props.linkInfo.url}
             </a>
           ) : (
             <input
               type="text"
               value={editedUrl}
-              onChange={e => setEditedUrl(e.target.value)}
+              onChange={(e) => setEditedUrl(e.target.value)}
             />
           )}
           <div className="link-popup-options">
@@ -95,5 +95,7 @@ const LinkPopup = forwardRef(
     );
   }
 );
+
+LinkPopup.displayName = "LinkPopup";
 
 export default LinkPopup;

@@ -5,14 +5,16 @@ import {
   useRef,
   useEffect,
   KeyboardEvent,
+  ClipboardEvent,
 } from "react";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 import { useLongPress } from "use-long-press";
-import LinkPopup from "./linkPopup";
-import { LinkInfo, MAX_NOTE_LENGTH_BYTES, Themes } from "../../types";
+import LinkPopup from "../../components/linkPopup";
+import { LinkInfo, Themes } from "../../types";
 import { Views } from "../../types";
 import { NotesState } from "../../hooks/useNotes";
 import { ThemeState } from "../../hooks/useTheme";
+import StyleButtons from "../../components/styleButtons";
 
 interface NoteProps {
   notesState: NotesState;
@@ -25,11 +27,6 @@ const Note = (props: NoteProps) => {
   const [charCount, setCharCount] = useState(0);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
-  // TODO: convert style buttons to reducer or object
-  const [bolded, setBolded] = useState(false);
-  const [italic, setItalic] = useState(false);
-  const [underlined, setUnderlined] = useState(false);
 
   const [showLinkPopup, setShowLinkPopup] = useState(false);
   const [linkInfo, setLinkInfo] = useState<LinkInfo>({
@@ -46,7 +43,6 @@ const Note = (props: NoteProps) => {
 
   const notepad = useRef<HTMLInputElement>(null);
   const linkPopup = useRef<HTMLDivElement>(null);
-  const stylebuttons = useRef<HTMLDivElement>(null);
 
   const bind = useLongPress(
     () => {
@@ -107,92 +103,13 @@ const Note = (props: NoteProps) => {
   const handleNotepadChange = (event: ContentEditableEvent) =>
     handleNoteChange(event.target.value);
 
-  const stylize = (command: string) => {
-    const selection = document.getSelection();
-    if (!selection || !notepad.current) return;
-    document.execCommand(command);
-    notepad.current.focus();
-    checkStyle();
-  };
-
-  const createLink = () => {
-    const selection = document.getSelection();
-    if (!selection || !notepad.current) return;
-
-    let selectionText = selection.toString();
-
-    if (selectionText !== "") {
-      if (selection && !selectionText.startsWith("http")) {
-        selectionText = "http://" + selectionText;
-      }
-      document.execCommand("createLink", false, selectionText);
-    }
-    notepad.current.focus();
-  };
-
   const exit = () => {
     window.close();
   };
 
-  const checkStyle = () => {
-    if (document.queryCommandValue("Bold") === "true") {
-      setBolded(true);
-    } else {
-      setBolded(false);
-    }
-    if (document.queryCommandValue("Italic") === "true") {
-      setItalic(true);
-    } else {
-      setItalic(false);
-    }
-    if (document.queryCommandValue("Underline") === "true") {
-      setUnderlined(true);
-    } else {
-      setUnderlined(false);
-    }
-  };
-
-  useEffect(() => {
-    const clickEventListner = (e: MouseEvent) => {
-      if (!(e.target instanceof HTMLElement)) return;
-      if (
-        notepad.current &&
-        notepad.current.contains(e.target) &&
-        e.target instanceof HTMLAnchorElement
-      ) {
-        setShowLinkPopup(true);
-        const linkRect = e.target.getBoundingClientRect();
-        setLinkInfo({
-          top: linkRect.top - 30,
-          url: e.target.getAttribute("href") ?? "",
-          target: e.target,
-        });
-        setBolded(false);
-        setItalic(false);
-        setUnderlined(false);
-      } else if (linkPopup.current && linkPopup.current.contains(e.target)) {
-        setShowLinkPopup(true);
-      } else if (
-        (notepad.current && notepad.current.contains(e.target)) ||
-        stylebuttons.current?.contains(e.target)
-      ) {
-        checkStyle();
-        setShowLinkPopup(false);
-      } else {
-        setBolded(false);
-        setItalic(false);
-        setUnderlined(false);
-        setShowLinkPopup(false);
-      }
-    };
-
-    document.addEventListener("click", clickEventListner);
-    return () => document.removeEventListener("click", clickEventListner);
-  }, []);
-
-  const handlePaste = (e: any) => {
+  const handlePaste = (e: ClipboardEvent) => {
     e.preventDefault();
-    const txt = (e.originalEvent || e).clipboardData.getData("text/plain");
+    const txt = e.clipboardData.getData("text/plain");
     document.execCommand("insertHtml", false, txt);
   };
 
@@ -220,60 +137,14 @@ const Note = (props: NoteProps) => {
           }
           {...bind()}
         >
-          {theme === Themes.ALT || theme === Themes.DEFAULT
-            ? "Jotter"
-            : "Joner"}
+          {theme !== Themes.JONAH ? "Jotter" : "Joner"}
         </div>
-        <div className="stylingoptions" ref={stylebuttons}>
-          <button
-            style={{ fontWeight: "bold" }}
-            onClick={() => {
-              setBolded(!bolded);
-              stylize("bold");
-            }}
-            className={bolded ? "activestyle" : undefined}
-            title="Bold"
-          >
-            B
-          </button>
-          <button
-            style={{ fontStyle: "italic" }}
-            onClick={() => {
-              setItalic(!italic);
-              stylize("italic");
-            }}
-            className={italic ? "activestyle" : undefined}
-            title="Italic"
-          >
-            I
-          </button>
-          <button
-            style={{ textDecoration: "underline" }}
-            onClick={() => {
-              setUnderlined(!underlined);
-              stylize("underline");
-            }}
-            className={underlined ? "activestyle" : undefined}
-            title="Underline"
-          >
-            U
-          </button>
-          <button
-            onClick={() => {
-              createLink();
-            }}
-            // eslint-disable-next-line no-constant-condition
-            className={false ? "activestyle" : undefined}
-            title="Create link"
-          >
-            <i
-              className="material-icons"
-              style={{ fontSize: "19px", paddingTop: "1px" }}
-            >
-              link
-            </i>
-          </button>
-        </div>
+        <StyleButtons
+          notepad={notepad}
+          setShowLinkPopup={setShowLinkPopup}
+          linkPopup={linkPopup}
+          setLinkInfo={setLinkInfo}
+        />
         <i
           className="material-icons"
           style={{ fontSize: "22px", cursor: "pointer" }}
