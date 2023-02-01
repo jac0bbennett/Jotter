@@ -1,18 +1,20 @@
+import { vi } from "vitest";
+
 export const chromeMock = {
   storage: {
     local: {
-      get: jest.fn(),
-      set: jest.fn(),
-      remove: jest.fn(),
+      get: vi.fn(),
+      set: vi.fn(),
+      remove: vi.fn(),
     },
     sync: {
-      get: jest.fn(),
-      set: jest.fn(),
-      remove: jest.fn(),
+      get: vi.fn(),
+      set: vi.fn(),
+      remove: vi.fn(),
     },
   },
   action: {
-    setIcon: jest.fn(),
+    setIcon: vi.fn(),
   },
   runtime: {
     lastError: {},

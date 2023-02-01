@@ -3,6 +3,7 @@ import { Themes } from "./../../types";
 import { renderHook } from "@testing-library/react";
 import { chromeMock } from "./../utils/mockChrome";
 import { act } from "react-dom/test-utils";
+import { describe, it, expect, beforeAll, vi } from "vitest";
 
 describe("useTheme", () => {
   beforeAll(() => {
@@ -22,11 +23,11 @@ describe("useTheme", () => {
 
   it("should already be set to alt theme", () => {
     // Arrange
-    jest
-      .spyOn(chromeMock.storage.local, "get")
-      .mockImplementation((key, callback) => {
+    vi.spyOn(chromeMock.storage.local, "get").mockImplementation(
+      (key, callback) => {
         callback({ theme: Themes.ALT });
-      });
+      }
+    );
 
     // Act
     const { result } = renderHook(() => useTheme());
@@ -41,11 +42,11 @@ describe("useTheme", () => {
 
   it("should already be set to jonah theme", () => {
     // Arrange
-    jest
-      .spyOn(chromeMock.storage.local, "get")
-      .mockImplementation((key, callback) => {
+    vi.spyOn(chromeMock.storage.local, "get").mockImplementation(
+      (key, callback) => {
         callback({ theme: Themes.JONAH });
-      });
+      }
+    );
 
     // Act
     const { result } = renderHook(() => useTheme());
@@ -60,11 +61,11 @@ describe("useTheme", () => {
 
   it("should set the theme to default", () => {
     // Arrange
-    jest
-      .spyOn(chromeMock.storage.local, "get")
-      .mockImplementation((key, callback) => {
+    vi.spyOn(chromeMock.storage.local, "get").mockImplementation(
+      (key, callback) => {
         callback({ theme: Themes.ALT });
-      });
+      }
+    );
     const { result } = renderHook(() => useTheme());
 
     // Act
@@ -84,11 +85,11 @@ describe("useTheme", () => {
 
   it("should set the theme to alt", () => {
     // Arrange
-    jest
-      .spyOn(chromeMock.storage.local, "get")
-      .mockImplementation((key, callback) => {
+    vi.spyOn(chromeMock.storage.local, "get").mockImplementation(
+      (key, callback) => {
         callback({});
-      });
+      }
+    );
 
     const { result } = renderHook(() => useTheme());
 
@@ -109,11 +110,11 @@ describe("useTheme", () => {
 
   it("should set the theme to jonah", () => {
     // Arrange
-    jest
-      .spyOn(chromeMock.storage.local, "get")
-      .mockImplementation((key, callback) => {
+    vi.spyOn(chromeMock.storage.local, "get").mockImplementation(
+      (key, callback) => {
         callback({});
-      });
+      }
+    );
 
     const { result } = renderHook(() => useTheme());
 

@@ -1,9 +1,9 @@
-import { removeNotes } from "./../../api/chrome";
 import { ALL_NOTES_KEY, CURRENT_NOTE_KEY } from "./../../types";
 import { renderHook } from "@testing-library/react";
 import { useNotes } from "./../../hooks/useNotes";
 import { chromeMock } from "./../utils/mockChrome";
 import { act } from "react-dom/test-utils";
+import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
 
 describe("useNotes", () => {
   beforeAll(() => {
@@ -12,7 +12,7 @@ describe("useNotes", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   const mockChromeGet = (
@@ -20,9 +20,8 @@ describe("useNotes", () => {
     curNote: string | null = "main",
     notes: Record<string, string> = {}
   ) => {
-    jest
-      .spyOn(chromeMock.storage.sync, "get")
-      .mockImplementation((key: string[], callback) => {
+    vi.spyOn(chromeMock.storage.sync, "get").mockImplementation(
+      (key: string[], callback) => {
         const resp = {} as Record<string, string | string[]>;
         if (curNote && key.includes("curNote")) resp["curNote"] = curNote;
         if (key.includes("allNotes")) resp["allNotes"] = allNotes;
@@ -32,18 +31,19 @@ describe("useNotes", () => {
         }
 
         callback(resp);
-      });
+      }
+    );
   };
 
   it("should initialize new state", async () => {
     // Arrange
-    jest
-      .spyOn(chromeMock.storage.sync, "get")
-      .mockImplementation((key: string[], callback) => {
+    vi.spyOn(chromeMock.storage.sync, "get").mockImplementation(
+      (key: string[], callback) => {
         const resp = {} as Record<string, string | string[]>;
 
         callback(resp);
-      });
+      }
+    );
 
     // Act
     const { result } = renderHook(() => useNotes());
@@ -194,16 +194,14 @@ describe("useNotes", () => {
 
   it("should fail to sync the note content because of chrome error", async () => {
     // Arrange
-    jest
-      .spyOn(chromeMock.storage.sync, "set")
-      .mockImplementation(
-        (values: Record<string, string>, callback?: () => void) => {
-          chromeMock.runtime.lastError = {
-            message: "test error",
-          };
-          callback?.();
-        }
-      );
+    vi.spyOn(chromeMock.storage.sync, "set").mockImplementation(
+      (values: Record<string, string>, callback?: () => void) => {
+        chromeMock.runtime.lastError = {
+          message: "test error",
+        };
+        callback?.();
+      }
+    );
 
     mockChromeGet(["main"], "main", { main: "test" });
 
@@ -306,16 +304,16 @@ describe("useNotes", () => {
 
   it("should add a new note", async () => {
     // Arrange
-    jest
-      .spyOn(chromeMock.storage.sync, "get")
-      .mockImplementation((key: string[], callback) => {
+    vi.spyOn(chromeMock.storage.sync, "get").mockImplementation(
+      (key: string[], callback) => {
         const resp = {} as Record<string, string | string[]>;
         if (key.includes("main")) resp["main"] = "test";
         if (key.includes("curNote")) resp["curNote"] = "main";
         if (key.includes("allNotes")) resp["allNotes"] = ["main", "test"];
 
         callback(resp);
-      });
+      }
+    );
 
     mockChromeGet(["main", "test"], "main", { main: "test" });
 
