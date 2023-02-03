@@ -96,7 +96,7 @@ const Note = (props: NoteProps) => {
       props.notesState.setNoteContent(value);
       setTypeTimeout(setTimeout(() => save(value), 650));
     } catch (e) {
-      setErrorMsg("Note exceeding max length! Cannot save!");
+      setErrorMsg((e as Error).message);
     }
   };
 
@@ -131,6 +131,7 @@ const Note = (props: NoteProps) => {
           autorenew
         </i>
         <div
+          data-testid="logo"
           className="header logo"
           style={
             saving ? { opacity: 0.8, transform: "translateX(24px)" } : undefined
@@ -182,12 +183,21 @@ const Note = (props: NoteProps) => {
         onPaste={handlePaste}
         onKeyDown={handleKeyPress}
       ></ContentEditable>
-      {errorMsg ? <div style={{ color: "red" }}>{errorMsg}</div> : null}
+      {errorMsg ? (
+        <div style={{ color: "red" }} data-testid="error-msg">
+          {errorMsg}
+        </div>
+      ) : null}
       <div className="infobar">
-        <div className="charcount" title="Character Count" {...bindSecret()}>
+        <div
+          className="charcount"
+          title="Character Count"
+          data-testid="char-count"
+          {...bindSecret()}
+        >
           {charCount}
         </div>
-        <div className="wordcount" title="Word Count">
+        <div className="wordcount" title="Word Count" data-testid="word-count">
           {wordCount}
         </div>
         <div

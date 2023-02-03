@@ -3,8 +3,8 @@ import {
   render,
   fireEvent,
   cleanup,
-  act,
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { NotesState } from "../hooks/useNotes";
 import { ThemeState } from "../hooks/useTheme";
 import { Themes, Views } from "../types";
@@ -46,6 +46,7 @@ describe("note", () => {
     });
 
     global.document.queryCommandValue = vi.fn();
+    global.document.execCommand = vi.fn();
   });
 
   beforeEach(() => {
@@ -59,6 +60,12 @@ describe("note", () => {
       <Note notesState={notesState} setView={setView} theme={theme} />
     );
     return component;
+  };
+
+  const genericNoteSetup = () => {
+    notesState.curNote = "test";
+    notesState.noteContent = "testing";
+    notesState.allNotes = ["test"];
   };
 
   it("should render", () => {
@@ -170,9 +177,7 @@ describe("note", () => {
 
   it("should populate note content", async () => {
     // Arrange
-    notesState.curNote = "test";
-    notesState.noteContent = "testing";
-    notesState.allNotes = ["test"];
+    genericNoteSetup();
 
     // Act
     renderComponent();
@@ -198,9 +203,7 @@ describe("note", () => {
 
   it("should call setView when clicking all notes", async () => {
     // Arrange
-    notesState.curNote = "test";
-    notesState.noteContent = "testing";
-    notesState.allNotes = ["test"];
+    genericNoteSetup();
 
     // Act
     renderComponent();
@@ -214,9 +217,7 @@ describe("note", () => {
 
   it("should save and exit when clicking exit button", async () => {
     // Arrange
-    notesState.curNote = "test";
-    notesState.noteContent = "testing";
-    notesState.allNotes = ["test"];
+    genericNoteSetup();
 
     // Act
     renderComponent();
@@ -235,15 +236,14 @@ describe("note", () => {
 
   it("should save and exit when exit button is clicked before save timer ends", async () => {
     // Arrange
-    notesState.curNote = "test";
-    notesState.noteContent = "testing";
-    notesState.allNotes = ["test"];
+    genericNoteSetup();
 
     // Act
     renderComponent();
-    const el = component.getByTestId("exit");
-    fireEvent.blur(el, { target: { textContent: "test" } });
-    el.click();
+    const exitButton = component.getByTestId("exit");
+    const input = component.getByTestId("notepad");
+    fireEvent.blur(input, { target: { textContent: "test" } });
+    exitButton.click();
 
     // Assert
     expect(notesState.setNoteContent).toHaveBeenCalledTimes(1);
@@ -251,8 +251,209 @@ describe("note", () => {
     expect(notesState.deleteNotes).toHaveBeenCalledTimes(0);
     expect(notesState.syncNoteContent).toHaveBeenCalledTimes(1);
     expect(notesState.syncNoteContent).toHaveBeenCalledWith(
-      "test",
+      notesState.noteContent,
       expect.any(Function)
     );
+  });
+
+  it("should change to alt theme when long pressing logo", async () => {
+    // Arrange
+    genericNoteSetup();
+
+    renderComponent();
+
+    // Act
+    const el = component.getByTestId("logo");
+    fireEvent.mouseDown(el);
+    vi.runAllTimers();
+
+    // Assert
+    expect(theme.setTheme).toHaveBeenCalledTimes(1);
+    expect(theme.setTheme).toHaveBeenCalledWith(Themes.ALT);
+  });
+
+  it("should change back to default theme when long pressing logo from alt theme", async () => {
+    // Arrange
+    genericNoteSetup();
+
+    theme.theme = Themes.ALT;
+
+    renderComponent();
+
+    // Act
+    const el = component.getByTestId("logo");
+    fireEvent.mouseDown(el);
+    vi.runAllTimers();
+
+    // Assert
+    expect(theme.setTheme).toHaveBeenCalledTimes(1);
+    expect(theme.setTheme).toHaveBeenCalledWith(Themes.DEFAULT);
+  });
+
+  it("should already be alt theme", async () => {
+    // Arrange
+    genericNoteSetup();
+    theme.theme = Themes.ALT;
+
+    // Act
+    renderComponent();
+
+    // Assert
+    const logo = component.getByTestId("logo");
+    expect(logo.textContent).toEqual("Jotter");
+  });
+
+  it("should change to jonah theme when long pressing char count at secret number", async () => {
+    // Arrange
+    genericNoteSetup();
+    notesState.noteContent = "a".repeat(69);
+
+    renderComponent();
+    const charCount = component.getByTestId("char-count");
+
+    // Act
+    fireEvent.mouseDown(charCount);
+    vi.runAllTimers();
+
+    // Assert
+    expect(theme.setTheme).toHaveBeenCalledTimes(1);
+    expect(theme.setTheme).toHaveBeenCalledWith(Themes.JONAH);
+  });
+
+  it("should not change to jonah theme when long pressing char count at arbitrary value", async () => {
+    // Arrange
+    genericNoteSetup();
+
+    renderComponent();
+
+    // Act
+    const el = component.getByTestId("char-count");
+    fireEvent.mouseDown(el);
+    vi.runAllTimers();
+
+    // Assert
+    expect(theme.setTheme).toHaveBeenCalledTimes(0);
+  });
+
+  it("should already be set to jonah theme", async () => {
+    // Arrange
+    genericNoteSetup();
+
+    theme.theme = Themes.JONAH;
+
+    // Act
+    renderComponent();
+
+    // Assert
+    const logo = component.getByTestId("logo");
+    expect(logo.textContent).toEqual("Joner");
+  });
+
+  it("should change back to default theme when long pressing logo from jonah theme", async () => {
+    // Arrange
+    genericNoteSetup();
+    notesState.noteContent = "a".repeat(69);
+    theme.theme = Themes.JONAH;
+
+    renderComponent();
+
+    // Act
+    const logo = component.getByTestId("logo");
+    fireEvent.mouseDown(logo);
+    vi.runAllTimers();
+
+    // Assert
+    expect(theme.setTheme).toHaveBeenCalledTimes(1);
+    expect(theme.setTheme).toHaveBeenCalledWith(Themes.DEFAULT);
+  });
+
+  it("should display error when setNoteContent fails", async () => {
+    // Arrange
+    const expectedErrorMessage = "Note exceeding max length";
+    genericNoteSetup();
+    vi.spyOn(notesState, "setNoteContent").mockImplementation(() => {
+      throw new Error(expectedErrorMessage);
+    });
+
+    // Act
+    renderComponent();
+    const input = component.getByTestId("notepad");
+    fireEvent.blur(input, { target: { textContent: "test" } });
+
+    // Assert
+    const error = component.getByTestId("error-msg");
+    expect(error.textContent).toEqual(expectedErrorMessage);
+  });
+
+  it("should paste plain text when pasting html", async () => {
+    // Arrange
+    genericNoteSetup();
+
+    // Act
+    renderComponent();
+    const input = component.getByTestId("notepad");
+    userEvent.click(input);
+    userEvent.paste("testing stuff");
+
+    // Assert
+    expect(global.document.execCommand).toHaveBeenCalledTimes(1);
+    expect(global.document.execCommand).toHaveBeenCalledWith(
+      "insertHtml",
+      false,
+      expect.any(String)
+    );
+  });
+
+  it("should insert 4 spaces when tab is pressed", async () => {
+    // Arrange
+    genericNoteSetup();
+
+    // Act
+    renderComponent();
+    const input = component.getByTestId("notepad");
+    fireEvent.keyDown(input, { key: "Tab", code: "Tab" });
+
+    // Assert
+    expect(global.document.execCommand).toHaveBeenCalledTimes(1);
+    expect(global.document.execCommand).toHaveBeenCalledWith(
+      "insertText",
+      false,
+      "    "
+    );
+  });
+
+  it("should show link popup when a link is clicked in the notepad", async () => {
+    // Arrange
+    genericNoteSetup();
+    notesState.noteContent =
+      '<a href="https://google.com">https://google.com</a>';
+
+    renderComponent();
+    const link = component.getByText("https://google.com");
+
+    // Act
+    fireEvent.click(link);
+
+    // Assert
+    const linkPopup = component.getByTestId("link-popup");
+    expect(linkPopup).toBeTruthy();
+  });
+
+  it("should hide link popup when clicked outside of link popup", async () => {
+    // Arrange
+    genericNoteSetup();
+    notesState.noteContent =
+      '<a href="https://google.com">https://google.com</a>';
+
+    renderComponent();
+    const input = component.getByTestId("notepad");
+    const link = component.getByText("https://google.com");
+
+    // Act
+    fireEvent.click(link);
+    fireEvent.click(input);
+
+    // Assert
+    expect(component.queryByTestId("link-popup")).toBeNull();
   });
 });

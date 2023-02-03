@@ -54,7 +54,7 @@ const LinkPopup = forwardRef(
     };
 
     return (
-      <form onSubmit={submitForm}>
+      <form onSubmit={submitForm} data-testid="link-popup">
         <div
           id="link-popup"
           style={{
