@@ -71,7 +71,6 @@ export const useNotes = (): NotesState => {
     noteContent: string = state.noteContent,
     callback?: (error?: Error) => void
   ) => {
-    console.log(state);
     chromeApi.setNote(state.curNote, noteContent, () => {
       if (chrome.runtime.lastError) {
         callback?.(

@@ -150,6 +150,7 @@ const Note = (props: NoteProps) => {
           style={{ fontSize: "22px", cursor: "pointer" }}
           onClick={() => props.setView(Views.ALLNOTES)}
           title="View All Notes"
+          data-testid="view-all-notes"
         >
           source
         </i>
@@ -158,6 +159,7 @@ const Note = (props: NoteProps) => {
           onClick={() => save(props.notesState.noteContent, exit)}
           style={{ cursor: "pointer" }}
           title="Exit"
+          data-testid="exit"
         >
           clear
         </i>
@@ -172,6 +174,7 @@ const Note = (props: NoteProps) => {
         />
       ) : null}
       <ContentEditable
+        data-testid="notepad"
         className="notepad"
         html={props.notesState.noteContent}
         innerRef={notepad}
@@ -187,7 +190,11 @@ const Note = (props: NoteProps) => {
         <div className="wordcount" title="Word Count">
           {wordCount}
         </div>
-        <div className="notename" title="Note name">
+        <div
+          data-testid="current-note-name"
+          className="notename"
+          title="Note name"
+        >
           {props.notesState.curNote}
         </div>
       </div>
