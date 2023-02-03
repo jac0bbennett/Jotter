@@ -48,7 +48,7 @@ describe("AllNotes", () => {
     });
   });
 
-  it("clicking a note should call setView", () => {
+  it("should call setView when note is clicked", () => {
     // Arrange
     genericSetup();
     const { getByText } = renderComponent();
@@ -61,7 +61,7 @@ describe("AllNotes", () => {
     expect(setView).toHaveBeenCalledWith(Views.NOTE);
   });
 
-  it("clicking a note should call syncCurNote", () => {
+  it("should call syncCurNote when note is clicked", () => {
     // Arrange
     genericSetup();
     const { getByText } = renderComponent();
@@ -74,7 +74,7 @@ describe("AllNotes", () => {
     expect(notesState.syncCurNote).toHaveBeenCalledWith("note1");
   });
 
-  it("clicking close all notes should call setView", () => {
+  it("should call setView when close all notes is clicked", () => {
     // Arrange
     genericSetup();
     const { getByTestId } = renderComponent();
@@ -88,7 +88,7 @@ describe("AllNotes", () => {
     expect(setView).toHaveBeenCalledWith(Views.NOTE);
   });
 
-  it("clicking delete toggle should turn on delete mode", () => {
+  it("should turn on delete mode when delete toggle is clicked", () => {
     // Arrange
     genericSetup();
     const { getByTestId } = renderComponent();
@@ -102,7 +102,7 @@ describe("AllNotes", () => {
     expect(getByTestId("note-list").classList).toContainEqual("deleting");
   });
 
-  it("clicking delete toggle while in delete mode should toggle off", () => {
+  it("should toggle off delete mode when delete toggle is clicked again", () => {
     // Arrange
     genericSetup();
     const { getByTestId, queryByTestId } = renderComponent();
@@ -117,7 +117,7 @@ describe("AllNotes", () => {
     expect(getByTestId("note-list").classList.contains("deleting")).toBeFalsy();
   });
 
-  it("clicking note while in delete mode shouldn't call setView", () => {
+  it("should not call setView if not is clicked while in delete mode", () => {
     // Arrange
     genericSetup();
     const { getByTestId, getByText } = renderComponent();
@@ -131,7 +131,7 @@ describe("AllNotes", () => {
     expect(setView).toHaveBeenCalledTimes(0);
   });
 
-  it("clicking confirm delete should call deleteNotes", () => {
+  it("should call deleteNotes when confirm delete is clicked", () => {
     // Arrange
     genericSetup();
     const { getByTestId } = renderComponent();
@@ -145,7 +145,7 @@ describe("AllNotes", () => {
     expect(notesState.deleteNotes).toHaveBeenCalledOnce();
   });
 
-  it("clicking a note and confirming delete should call deleteNotes with note", () => {
+  it("should call deleteNotes with note when note and confirm delete are clicked", () => {
     // Arrange
     genericSetup();
     const { getByTestId, getByText } = renderComponent();
@@ -161,7 +161,7 @@ describe("AllNotes", () => {
     expect(notesState.deleteNotes).toHaveBeenCalledWith(["note1"]);
   });
 
-  it("clicking multiple notes and confirming delete should call deleteNotes with notes", () => {
+  it("should call deleteNotes with notes when multiple notes are selected and confirm delete is clicked", () => {
     // Arrange
     genericSetup();
     const { getByTestId, getByText } = renderComponent();
@@ -178,7 +178,7 @@ describe("AllNotes", () => {
     expect(notesState.deleteNotes).toHaveBeenCalledWith(["note1", "note2"]);
   });
 
-  it("typing in a note name and clicking create note should call createNote", () => {
+  it("should call createNote when note name is entered and create note is clicked", () => {
     // Arrange
     genericSetup();
     const { getByTestId } = renderComponent();
