@@ -3,7 +3,7 @@ import "./alt.css";
 import "./jonah.css";
 import { useState } from "react";
 import Note from "./views/note/note";
-import AllNotes from "./views/allnotes";
+import AllNotes from "./views/allNotes";
 import { Views } from "./types";
 import { useNotes } from "./hooks/useNotes";
 import { useTheme } from "./hooks/useTheme";

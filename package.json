@@ -1,6 +1,6 @@
 {
   "name": "jotter-2",
-  "version": "0.1.0",
+  "version": "2.0.4.2",
   "private": true,
   "dependencies": {
     "@babel/highlight": "^7.18.6",

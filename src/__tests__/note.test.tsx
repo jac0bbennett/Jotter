@@ -10,6 +10,8 @@ import { ThemeState } from "../hooks/useTheme";
 import { Themes, Views } from "../types";
 import Note from "../views/note/note";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { mockNotesState } from "./utils/mockNotesState";
+import { mockTheme } from "./utils/mockTheme";
 
 describe("note", () => {
   let notesState: NotesState;
@@ -20,23 +22,8 @@ describe("note", () => {
   vi.useFakeTimers();
 
   beforeAll(() => {
-    notesState = {
-      allNotes: [],
-      curNote: "",
-      noteContent: "",
-      syncAllNotes: vi.fn(),
-      syncCurNote: vi.fn(),
-      syncNoteContent: vi.fn(),
-      deleteNotes: vi.fn(),
-      getNoteData: vi.fn(),
-      addNote: vi.fn(),
-      setNoteContent: vi.fn(),
-    };
-
-    theme = {
-      theme: Themes.DEFAULT,
-      setTheme: vi.fn(),
-    };
+    notesState = mockNotesState;
+    theme = mockTheme;
 
     setView = vi.fn();
 
@@ -243,7 +230,7 @@ describe("note", () => {
     const exitButton = component.getByTestId("exit");
     const input = component.getByTestId("notepad");
     fireEvent.blur(input, { target: { textContent: "test" } });
-    exitButton.click();
+    fireEvent.click(exitButton);
 
     // Assert
     expect(notesState.setNoteContent).toHaveBeenCalledTimes(1);

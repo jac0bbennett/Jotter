@@ -81,6 +81,7 @@ const AllNotes = (props: AllNotesProps) => {
           className="material-icons"
           style={{ marginLeft: "10px", marginRight: "10px", cursor: "pointer" }}
           title="Toggle Delete Mode"
+          data-testid="delete-mode-toggle"
           onClick={() => {
             setSelectedNotes([]);
             setDeleteMode(!deleteMode);
@@ -89,7 +90,11 @@ const AllNotes = (props: AllNotesProps) => {
           {!deleteMode ? "delete_outline" : "delete"}
         </i>
         {deleteMode ? (
-          <button className="confirmdelete" onClick={deleteSelected}>
+          <button
+            className="confirmdelete"
+            onClick={deleteSelected}
+            data-testid="confirm-delete"
+          >
             Delete Selected
           </button>
         ) : null}
@@ -98,6 +103,7 @@ const AllNotes = (props: AllNotesProps) => {
           style={{ fontSize: "28px", cursor: "pointer", marginLeft: "auto" }}
           onClick={close}
           title="Close"
+          data-testid="close-allnotes"
         >
           keyboard_arrow_down
         </i>
@@ -110,12 +116,22 @@ const AllNotes = (props: AllNotesProps) => {
             tabIndex={-1}
             value={newNote}
             onChange={newNoteChange}
+            data-testid="new-note-input"
           ></input>
-          <button type="submit">Create</button>
+          <button type="submit" data-testid="create-new-note">
+            Create
+          </button>
         </form>
       </div>
-      {msg ? <div className="newnotemsg">{msg}</div> : null}
-      <div className={!deleteMode ? "notelist" : "notelist deleting"}>
+      {msg ? (
+        <div className="newnotemsg" data-testid="new-note-msg">
+          {msg}
+        </div>
+      ) : null}
+      <div
+        className={!deleteMode ? "notelist" : "notelist deleting"}
+        data-testid="note-list"
+      >
         {props.notesState.allNotes.map((name) => (
           <div
             key={name}
