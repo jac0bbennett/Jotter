@@ -108,8 +108,8 @@ const AllNotes = (props: AllNotesProps) => {
           keyboard_arrow_down
         </i>
       </div>
-      <div className="newnote">
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit}>
+        <div className="newnote mt-1 flex items-center">
           <input
             type="text"
             placeholder="New Note Name"
@@ -117,12 +117,16 @@ const AllNotes = (props: AllNotesProps) => {
             value={newNote}
             onChange={newNoteChange}
             data-testid="new-note-input"
-          ></input>
-          <button type="submit" data-testid="create-new-note">
+          />
+          <button
+            type="submit"
+            className="ml-3 py-2"
+            data-testid="create-new-note"
+          >
             Create
           </button>
-        </form>
-      </div>
+        </div>
+      </form>
       {msg ? (
         <div className="newnotemsg" data-testid="new-note-msg">
           {msg}
@@ -135,7 +139,7 @@ const AllNotes = (props: AllNotesProps) => {
         {props.notesState.allNotes.map((name) => (
           <div
             key={name}
-            className={getNameClasses(name)}
+            className={getNameClasses(name) + " flex h-8 items-center"}
             onClick={
               !deleteMode
                 ? () => selectNote(name)

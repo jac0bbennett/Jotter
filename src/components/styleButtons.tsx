@@ -30,15 +30,20 @@ const StyleButtons = (props: StyleButtonsProps) => {
     const selection = document.getSelection();
     if (!selection || !props.notepad.current) return;
 
-    let selectionText = selection.toString();
+    let selectionText = selection.toString().trim();
 
-    if (selectionText !== "") {
+    if (selectionText) {
       if (selection && !selectionText.startsWith("http")) {
         selectionText = "http://" + selectionText;
       }
       document.execCommand("createLink", false, selectionText);
+    } else {
+      props.setLinkInfo({
+        top: 50,
+        documentRange: selection.getRangeAt(0),
+      });
+      props.setShowLinkPopup(true);
     }
-    props.notepad.current.focus();
   };
 
   const checkStyle = () => {
@@ -69,17 +74,20 @@ const StyleButtons = (props: StyleButtonsProps) => {
         props.notepad.current.contains(e.target) &&
         e.target instanceof HTMLAnchorElement
       ) {
-        props.setShowLinkPopup(true);
         const linkRect = e.target.getBoundingClientRect();
         props.setLinkInfo({
-          top: linkRect.top - 30,
+          top: Math.max(linkRect.top - 30, 10),
           url: e.target.getAttribute("href") ?? "",
+          text: e.target.innerText,
           target: e.target,
         });
-        dispatchStyle({ type: "setAll", payload: false });
+        props.setShowLinkPopup(true);
+        checkStyle();
       } else if (
-        props.linkPopup.current &&
-        props.linkPopup.current.contains(e.target)
+        (props.linkPopup.current &&
+          props.linkPopup.current.contains(e.target)) ||
+        e.target.getAttribute("data-testid") === "create-link" ||
+        e.target.classList.contains("link-popup-option")
       ) {
         props.setShowLinkPopup(true);
       } else if (
@@ -99,7 +107,7 @@ const StyleButtons = (props: StyleButtonsProps) => {
   }, []);
 
   return (
-    <div className="stylingoptions" ref={stylebuttons}>
+    <div className="stylingoptions flex items-center" ref={stylebuttons}>
       <button
         style={{ fontWeight: "bold" }}
         onClick={() => {
@@ -144,10 +152,7 @@ const StyleButtons = (props: StyleButtonsProps) => {
         className={false ? "activestyle" : undefined}
         title="Create link"
       >
-        <i
-          className="material-icons"
-          style={{ fontSize: "19px", paddingTop: "1px" }}
-        >
+        <i className="material-icons" data-testid="create-link">
           link
         </i>
       </button>

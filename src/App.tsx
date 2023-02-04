@@ -15,7 +15,7 @@ const App = () => {
   const theme = useTheme();
 
   return (
-    <div className="app">
+    <div className="app mx-2 my-1.5">
       <Note setView={setView} notesState={notesState} theme={theme} />
       <div
         className="allnotescont"

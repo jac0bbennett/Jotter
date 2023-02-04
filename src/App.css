@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto:600,400,500,300");
 @import url("https://fonts.googleapis.com/css?family=Montserrat:600,400,500,300");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --darkbackground: #302e2a;
@@ -9,7 +12,7 @@
   --darkaccent: #e4b268;
   --lighttext: #fffae7;
   --darktext: #000000;
-  --linkcolor: #3a7fee;
+  --linkcolor: #5890ea;
 }
 
 body {
@@ -34,6 +37,14 @@ button {
   align-items: center;
   cursor: pointer;
   transition: 150ms ease;
+}
+
+input {
+  outline: none;
+  background: var(--verylightbackground);
+  color: #fff;
+  border: none;
+  border-radius: 2px;
 }
 
 .app {
@@ -86,11 +97,6 @@ button {
   }
 }
 
-.stylingoptions {
-  display: flex;
-  align-items: center;
-}
-
 .stylingoptions button {
   outline: none;
   background: var(--lightbackground);
@@ -102,9 +108,10 @@ button {
   border-radius: 5px;
   margin-right: 8px;
   width: 28px;
-  height: 21px;
+  height: 25px;
   text-align: center;
   padding: 0;
+  line-height: 1;
 }
 
 .stylingoptions button.activestyle {
@@ -116,7 +123,6 @@ button {
 }
 
 .notepad {
-  min-width: 80%;
   height: 190px;
   border-radius: 5px;
   background: var(--mainaccent);
@@ -167,17 +173,15 @@ button {
   position: absolute;
   display: flex;
   align-items: center;
-  min-width: 25px;
-  width: 90%;
+  width: 94%;
   margin-left: auto;
   margin-right: auto;
-  height: 28px;
   background: var(--darkbackground);
-  filter: drop-shadow(0px 2px 7px #303030);
+  filter: drop-shadow(0px 2px 7px #222222);
   backdrop-filter: blur(10px);
-  border: 1px solid var(--lightbackground);
+  border: 1px solid var(--verylightbackground);
   border-radius: 5px;
-  padding: 2px 5px;
+  padding: 5px 10px;
   overflow: hidden;
   font-size: 11pt;
   z-index: 50;
@@ -190,10 +194,17 @@ button {
 }
 
 #link-popup i {
-  font-size: 16px;
+  font-size: 20px;
   vertical-align: middle;
   color: var(--mainaccent);
-  margin-right: 2px;
+}
+
+#link-popup label {
+  color: var(--mainaccent);
+}
+
+#link-popup input {
+  background: var(--verylightbackground);
 }
 
 .link-popup-options {
@@ -235,7 +246,6 @@ button {
   background: var(--lightbackground);
   border-radius: 5px;
   font-size: 16px;
-  height: 19px;
   transition: 150ms ease;
 }
 
@@ -290,21 +300,10 @@ button {
   background: var(--darkaccent);
 }
 
-.newnote {
-  display: flex;
-  justify-content: space-between;
-}
-
 .newnote input {
-  margin-top: 5px;
-  outline: none;
-  background: var(--verylightbackground);
-  color: #fff;
-  border: none;
   font-size: 16px;
-  padding: 5px;
   width: 250px;
-  border-radius: 2px;
+  padding: 2px 5px;
 }
 
 .newnote input::placeholder {
@@ -313,8 +312,6 @@ button {
 
 .newnote button {
   background: var(--darkbackground);
-  margin-right: auto;
-  margin-left: 10px;
 }
 
 .newnote button:hover {

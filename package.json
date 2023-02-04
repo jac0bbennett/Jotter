@@ -17,8 +17,8 @@
     "semver": "^7.3.8"
   },
   "scripts": {
-    "build": "tsc && vite build",
-    "watch": "tsc && vite build --watch",
+    "build": "vite build",
+    "watch": "vite build --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -41,9 +41,14 @@
     "@typescript-eslint/parser": "^5.49.0",
     "@vitejs/plugin-react": "^3.0.1",
     "@vitest/coverage-c8": "^0.28.3",
+    "autoprefixer": "^10.4.13",
     "eslint": "^8.32.0",
     "eslint-plugin-react": "^7.32.1",
     "jest-environment-jsdom": "^29.4.1",
+    "postcss": "^8.4.21",
+    "prettier": "^2.8.3",
+    "prettier-plugin-tailwindcss": "^0.2.2",
+    "tailwindcss": "^3.2.4",
     "ts-node": "^10.9.1",
     "use-long-press": "^2.0.2",
     "vite": "^4.0.4",

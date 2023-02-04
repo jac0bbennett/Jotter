@@ -5,8 +5,10 @@ export type BaseAppState = {
 
 export type LinkInfo = {
   top: number;
-  url: string;
-  target: HTMLAnchorElement | null;
+  url?: string;
+  text?: string;
+  target?: HTMLAnchorElement | null;
+  documentRange?: Range;
 };
 
 export enum Views {

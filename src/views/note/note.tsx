@@ -32,6 +32,7 @@ const Note = (props: NoteProps) => {
   const [linkInfo, setLinkInfo] = useState<LinkInfo>({
     top: 0,
     url: "",
+    text: "",
     target: null,
   });
 
@@ -109,7 +110,18 @@ const Note = (props: NoteProps) => {
 
   const handlePaste = (e: ClipboardEvent) => {
     e.preventDefault();
-    const txt = e.clipboardData.getData("text/plain");
+    let txt = e.clipboardData.getData("text/plain");
+
+    const urlRegex = /((https?:\/\/)|(www\.))[^\s]+/g;
+    const urls = txt.match(urlRegex);
+    if (urls) {
+      const urlSet = new Set(urls);
+      urlSet.forEach((url) => {
+        const href = url.startsWith("http") ? url : `http://${url}`;
+        txt = txt.replaceAll(url, `<a href="${href}">${url}</a>`);
+      });
+    }
+
     document.execCommand("insertHtml", false, txt);
   };
 
@@ -170,13 +182,14 @@ const Note = (props: NoteProps) => {
           linkInfo={linkInfo}
           setLinkInfo={setLinkInfo}
           setNote={handleNoteChange}
+          closePopup={() => setShowLinkPopup(false)}
           notepadRef={notepad}
           ref={linkPopup}
         />
       ) : null}
       <ContentEditable
         data-testid="notepad"
-        className="notepad"
+        className="notepad leading-tight"
         html={props.notesState.noteContent}
         innerRef={notepad}
         onChange={handleNotepadChange}
