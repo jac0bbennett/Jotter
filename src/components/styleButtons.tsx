@@ -1,16 +1,17 @@
-import { useEffect, useReducer, useRef } from "react";
+import { useCallback, useEffect, useReducer, useRef } from "react";
 import { styleReducer } from "../reducers/style";
 import { LinkInfo } from "../types";
 
 type StyleButtonsProps = {
   notepad: React.RefObject<HTMLDivElement>;
   setShowLinkPopup: React.Dispatch<React.SetStateAction<boolean>>;
-  linkPopup: React.RefObject<HTMLDivElement>;
   setLinkInfo: React.Dispatch<React.SetStateAction<LinkInfo>>;
 };
 
 const StyleButtons = (props: StyleButtonsProps) => {
   const stylebuttons = useRef<HTMLDivElement>(null);
+
+  const { notepad, setShowLinkPopup, setLinkInfo } = props;
 
   const [styleState, dispatchStyle] = useReducer(styleReducer, {
     bolded: false,
@@ -46,7 +47,7 @@ const StyleButtons = (props: StyleButtonsProps) => {
     }
   };
 
-  const checkStyle = () => {
+  const checkStyle = useCallback(() => {
     const newStyle = { ...styleState };
     if (document.queryCommandValue("Bold") === "true") {
       newStyle.bolded = true;
@@ -64,47 +65,38 @@ const StyleButtons = (props: StyleButtonsProps) => {
       newStyle.underlined = false;
     }
     dispatchStyle({ type: "set", payload: newStyle });
-  };
+  }, [styleState]);
 
   useEffect(() => {
     const clickEventListner = (e: MouseEvent) => {
       if (!(e.target instanceof HTMLElement)) return;
       if (
-        props.notepad.current &&
-        props.notepad.current.contains(e.target) &&
+        notepad.current &&
+        notepad.current.contains(e.target) &&
         e.target instanceof HTMLAnchorElement
       ) {
         const linkRect = e.target.getBoundingClientRect();
-        props.setLinkInfo({
+        setLinkInfo({
           top: Math.max(linkRect.top - 30, 10),
           url: e.target.getAttribute("href") ?? "",
-          text: e.target.innerText,
+          text: e.target.textContent ?? "",
           target: e.target,
         });
-        props.setShowLinkPopup(true);
+        setShowLinkPopup(true);
         checkStyle();
       } else if (
-        (props.linkPopup.current &&
-          props.linkPopup.current.contains(e.target)) ||
-        e.target.getAttribute("data-testid") === "create-link" ||
-        e.target.classList.contains("link-popup-option")
-      ) {
-        props.setShowLinkPopup(true);
-      } else if (
-        (props.notepad.current && props.notepad.current.contains(e.target)) ||
+        (notepad.current && notepad.current.contains(e.target)) ||
         stylebuttons.current?.contains(e.target)
       ) {
         checkStyle();
-        props.setShowLinkPopup(false);
       } else {
         dispatchStyle({ type: "setAll", payload: false });
-        props.setShowLinkPopup(false);
       }
     };
 
     document.addEventListener("click", clickEventListner);
     return () => document.removeEventListener("click", clickEventListner);
-  }, []);
+  }, [checkStyle, notepad, setLinkInfo, setShowLinkPopup]);
 
   return (
     <div className="stylingoptions flex items-center" ref={stylebuttons}>

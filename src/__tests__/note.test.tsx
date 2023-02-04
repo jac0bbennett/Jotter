@@ -387,7 +387,26 @@ describe("note", () => {
     expect(global.document.execCommand).toHaveBeenCalledWith(
       "insertHtml",
       false,
-      expect.any(String)
+      "testing stuff"
+    );
+  });
+
+  it("should paste text including link when url is present", async () => {
+    // Arrange
+    genericNoteSetup();
+
+    // Act
+    renderComponent();
+    const input = component.getByTestId("notepad");
+    userEvent.click(input);
+    userEvent.paste("testing stuff https://google.com and other things");
+
+    // Assert
+    expect(global.document.execCommand).toHaveBeenCalledTimes(1);
+    expect(global.document.execCommand).toHaveBeenCalledWith(
+      "insertHtml",
+      false,
+      'testing stuff <a href="https://google.com">https://google.com</a> and other things'
     );
   });
 
@@ -423,7 +442,9 @@ describe("note", () => {
 
     // Assert
     const linkPopup = component.getByTestId("link-popup");
+    const linkPopupLink = component.getByTestId("link-popup-link");
     expect(linkPopup).toBeTruthy();
+    expect(linkPopupLink.textContent).toEqual("https://google.com");
   });
 
   it("should hide link popup when clicked outside of link popup", async () => {

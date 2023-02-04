@@ -66,7 +66,7 @@ const Note = (props: NoteProps) => {
   );
 
   useEffect(() => {
-    countWords(notepad.current?.innerText);
+    countWords(notepad.current?.textContent ?? "");
   }, [props.notesState.noteContent]);
 
   useEffect(() => {
@@ -82,8 +82,11 @@ const Note = (props: NoteProps) => {
   };
 
   const countWords = (v = "") => {
-    const wordCount = v.replaceAll("\n", " ").trim().split(/[ ]+/).length;
-    setWordCount(notepad.current?.textContent ? wordCount : 0);
+    const newWordCount = v
+      .replace(/[\u00A0\u2007\u202F\u2060\u3000]/g, " ")
+      .trim()
+      .split(/\s+/).length;
+    setWordCount(notepad.current?.textContent ? newWordCount : 0);
     setCharCount(notepad.current?.textContent?.length ?? 0);
   };
 
@@ -155,7 +158,6 @@ const Note = (props: NoteProps) => {
         <StyleButtons
           notepad={notepad}
           setShowLinkPopup={setShowLinkPopup}
-          linkPopup={linkPopup}
           setLinkInfo={setLinkInfo}
         />
         <i
@@ -182,7 +184,7 @@ const Note = (props: NoteProps) => {
           linkInfo={linkInfo}
           setLinkInfo={setLinkInfo}
           setNote={handleNoteChange}
-          closePopup={() => setShowLinkPopup(false)}
+          setShowLinkPopup={setShowLinkPopup}
           notepadRef={notepad}
           ref={linkPopup}
         />

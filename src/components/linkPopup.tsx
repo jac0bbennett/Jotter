@@ -12,54 +12,91 @@ import {
 } from "react";
 import { LinkInfo } from "../types";
 
-interface LinkPopupProps {
+interface LinkPopup {
   linkInfo: LinkInfo;
   setLinkInfo: Dispatch<SetStateAction<LinkInfo>>;
   setNote: (note: string) => void;
   notepadRef: RefObject<HTMLDivElement>;
-  closePopup: () => void;
+  setShowLinkPopup: Dispatch<SetStateAction<boolean>>;
 }
 
 const LinkPopup = forwardRef(
-  (props: LinkPopupProps, ref: ForwardedRef<HTMLDivElement>) => {
+  (props: LinkPopup, ref: ForwardedRef<HTMLDivElement>) => {
     const linkPopupRef = useRef<HTMLDivElement>(null);
     useImperativeHandle(
       ref,
       () => linkPopupRef.current ?? new HTMLDivElement()
     );
 
+    const { notepadRef, linkInfo, setShowLinkPopup, setLinkInfo, setNote } =
+      props;
+
     useEffect(() => {
-      if (!props.linkInfo.target) {
+      if (!linkInfo.target) {
         setEditMode(true);
         setEditedText("");
         setEditedUrl("");
       }
-    }, [props.linkInfo]);
+    }, [linkInfo]);
+
+    useEffect(() => {
+      const clickEventListner = (e: MouseEvent) => {
+        if (!(e.target instanceof HTMLElement)) return;
+        if (
+          notepadRef.current &&
+          notepadRef.current.contains(e.target) &&
+          e.target instanceof HTMLAnchorElement
+        ) {
+          const linkRect = e.target.getBoundingClientRect();
+          setLinkInfo({
+            top: Math.max(linkRect.top - 30, 10),
+            url: e.target.getAttribute("href") ?? "",
+            text: e.target.textContent ?? "",
+            target: e.target,
+          });
+          setShowLinkPopup(true);
+        } else if (
+          (linkPopupRef.current && linkPopupRef.current.contains(e.target)) ||
+          e.target.getAttribute("data-testid") === "create-link" ||
+          e.target.classList.contains("link-popup-option")
+        ) {
+          setShowLinkPopup(true);
+        } else {
+          setShowLinkPopup(false);
+        }
+      };
+
+      document.addEventListener("click", clickEventListner);
+      return () => document.removeEventListener("click", clickEventListner);
+    }, [notepadRef, linkInfo, setShowLinkPopup, setLinkInfo, linkPopupRef]);
 
     const [editMode, setEditMode] = useState(false);
-    const [editedUrl, setEditedUrl] = useState(props.linkInfo.url);
-    const [editedText, setEditedText] = useState(props.linkInfo.text);
+    const [editedUrl, setEditedUrl] = useState(linkInfo.url);
+    const [editedText, setEditedText] = useState(linkInfo.text);
 
     const editLink = () => {
       setEditMode(true);
-      setEditedUrl(props.linkInfo.url);
-      setEditedText(props.linkInfo.text);
+      setEditedUrl(linkInfo.url);
+      setEditedText(linkInfo.text);
     };
 
     const saveEditedLink = () => {
-      if (!props.notepadRef.current || !editedUrl) return;
-      const linkText = editedText ?? editedUrl;
-      if (props.linkInfo.target) {
-        props.linkInfo.target.href = editedUrl ?? "";
-        props.linkInfo.target.innerText = linkText;
+      if (!notepadRef.current || !editedUrl) return;
+      const newLinkText = editedText?.trim() || editedUrl;
+      console.log(newLinkText);
+
+      if (linkInfo.target) {
+        linkInfo.target.href = editedUrl ?? "";
+        linkInfo.target.textContent = newLinkText;
+        console.log(linkInfo.target.parentElement?.innerHTML);
       } else {
         const selection = window.getSelection();
         selection?.removeAllRanges();
-        if (props.linkInfo.documentRange) {
-          selection?.addRange(props.linkInfo.documentRange);
+        if (linkInfo.documentRange) {
+          selection?.addRange(linkInfo.documentRange);
         } else {
           const range = document.createRange();
-          range.selectNodeContents(props.notepadRef.current);
+          range.selectNodeContents(notepadRef.current);
           range.collapse(false);
           selection?.addRange(range);
         }
@@ -67,28 +104,29 @@ const LinkPopup = forwardRef(
         document.execCommand(
           "insertHTML",
           false,
-          `<a href="${editedUrl}">${linkText}</a>`
+          `<a href="${editedUrl}">${newLinkText}</a>`
         );
       }
-      props.setLinkInfo((prevState) => {
+      setLinkInfo((prevState) => {
         return {
           url: editedUrl,
-          text: editedText,
+          text: newLinkText,
           top: prevState.top,
           target: prevState.target,
         };
       });
       setEditMode(false);
-      props.closePopup();
-      props.setNote(props.notepadRef.current.innerHTML);
-      props.notepadRef.current.focus();
+      setShowLinkPopup(false);
+      console.log(notepadRef.current.innerHTML);
+      setNote(notepadRef.current.innerHTML);
+      notepadRef.current.focus();
     };
 
     const removeLink = () => {
-      if (!props.linkInfo.target || !props.notepadRef.current) return;
-      props.linkInfo.target.replaceWith(props.linkInfo.text ?? "");
-      props.setNote(props.notepadRef.current.innerHTML);
-      props.closePopup();
+      if (!linkInfo.target || !notepadRef.current) return;
+      linkInfo.target.replaceWith(linkInfo.text ?? "");
+      setNote(notepadRef.current.innerHTML);
+      setShowLinkPopup(false);
     };
 
     const submitForm = (e: FormEvent) => {
@@ -102,17 +140,18 @@ const LinkPopup = forwardRef(
           id="link-popup"
           ref={linkPopupRef}
           style={{
-            top: props.linkInfo.top + "px",
+            top: linkInfo.top + "px",
           }}
         >
           {!editMode ? (
             <a
-              href={props.linkInfo.url}
+              href={linkInfo.url}
               target="_blank"
               rel="noreferrer"
               className="whitespace-nowrap"
+              data-testid="link-popup-link"
             >
-              {props.linkInfo.url}
+              {linkInfo.url}
             </a>
           ) : (
             <div className="flex w-11/12 flex-col gap-1.5">
@@ -123,6 +162,7 @@ const LinkPopup = forwardRef(
                   className="ml-1 grow rounded px-1"
                   value={editedText}
                   onChange={(e) => setEditedText(e.target.value)}
+                  data-testid="link-popup-text-input"
                 />
               </label>
               <label className="flex items-center justify-between">
@@ -132,6 +172,7 @@ const LinkPopup = forwardRef(
                   className="ml-1 grow rounded px-1"
                   value={editedUrl}
                   onChange={(e) => setEditedUrl(e.target.value)}
+                  data-testid="link-popup-url-input"
                 />
               </label>
             </div>
@@ -142,12 +183,14 @@ const LinkPopup = forwardRef(
                 <i
                   className="material-icons link-popup-option mr-2"
                   onClick={editLink}
+                  data-testid="link-popup-edit-button"
                 >
                   edit
                 </i>
                 <i
                   className="material-icons link-popup-option"
                   onClick={removeLink}
+                  data-testid="link-popup-remove-button"
                 >
                   link_off
                 </i>
@@ -158,6 +201,7 @@ const LinkPopup = forwardRef(
                   <i
                     className="material-icons link-popup-option"
                     style={{ fontSize: "20px" }}
+                    data-testid="link-popup-save-button"
                   >
                     save
                   </i>
