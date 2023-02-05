@@ -14,6 +14,8 @@ describe("useTheme", () => {
       writable: true,
       value: document.createElement("div"),
     });
+
+	global.IS_REACT_ACT_ENVIRONMENT = true;
   });
 
   it("should return the default theme", () => {

@@ -83,12 +83,10 @@ const LinkPopup = forwardRef(
     const saveEditedLink = () => {
       if (!notepadRef.current || !editedUrl) return;
       const newLinkText = editedText?.trim() || editedUrl;
-      console.log(newLinkText);
 
       if (linkInfo.target) {
         linkInfo.target.href = editedUrl ?? "";
         linkInfo.target.textContent = newLinkText;
-        console.log(linkInfo.target.parentElement?.innerHTML);
       } else {
         const selection = window.getSelection();
         selection?.removeAllRanges();
@@ -107,17 +105,8 @@ const LinkPopup = forwardRef(
           `<a href="${editedUrl}">${newLinkText}</a>`
         );
       }
-      setLinkInfo((prevState) => {
-        return {
-          url: editedUrl,
-          text: newLinkText,
-          top: prevState.top,
-          target: prevState.target,
-        };
-      });
       setEditMode(false);
       setShowLinkPopup(false);
-      console.log(notepadRef.current.innerHTML);
       setNote(notepadRef.current.innerHTML);
       notepadRef.current.focus();
     };

@@ -464,4 +464,25 @@ describe("note", () => {
     // Assert
     expect(component.queryByTestId("link-popup")).toBeNull();
   });
+
+  it("should show link popup when create link button is clicked", async () => {
+    // Arrange
+    genericNoteSetup();
+
+    renderComponent();
+    const createLink = component.getByTestId("create-link");
+
+    // Act
+    fireEvent.click(createLink);
+
+    // Assert
+    const linkPopup = component.getByTestId("link-popup");
+    expect(linkPopup).toBeTruthy();
+    expect(
+      (component.getByTestId("link-popup-text-input") as HTMLInputElement).value
+    ).toBe("");
+    expect(
+      (component.getByTestId("link-popup-url-input") as HTMLInputElement).value
+    ).toBe("");
+  });
 });

@@ -9,6 +9,7 @@ describe("useNotes", () => {
   beforeAll(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     global.chrome = chromeMock as any;
+	global.IS_REACT_ACT_ENVIRONMENT = true;
   });
 
   afterEach(() => {

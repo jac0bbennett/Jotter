@@ -1,13 +1,7 @@
-import { describe, it, expect, vi, beforeAll, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import LinkPopup from "../components/linkPopup";
 import { LinkInfo } from "../types";
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  waitFor,
-} from "@testing-library/react";
+import { cleanup, fireEvent, render } from "@testing-library/react";
 import { Dispatch, SetStateAction } from "react";
 
 describe("LinkPopup", () => {
@@ -38,6 +32,9 @@ describe("LinkPopup", () => {
       text: "Google",
       url: "https://www.google.com",
     };
+
+    global.document.queryCommandValue = vi.fn();
+    global.document.execCommand = vi.fn();
   });
 
   const renderComponent = () => {
@@ -114,6 +111,58 @@ describe("LinkPopup", () => {
     // Assert
     expect(setNote).toBeCalledWith(
       '<a href="https://www.facebook.com">Facebook</a>'
+    );
+  });
+
+  it("should call setNote when remove button is clicked", () => {
+    // Arrange
+    const { getByTestId } = renderComponent();
+
+    // Act
+    fireEvent.click(getByTestId("link-popup-remove-button"));
+
+    // Assert
+    expect(setNote).toBeCalledWith("Google");
+  });
+
+  it("should add new link when saved with target null", () => {
+    // Arrange
+    linkInfo.target = null;
+    const { getByTestId } = renderComponent();
+    fireEvent.change(getByTestId("link-popup-text-input"), {
+      target: { value: "Facebook" },
+    });
+    fireEvent.change(getByTestId("link-popup-url-input"), {
+      target: { value: "https://www.facebook.com" },
+    });
+
+    // Act
+    fireEvent.click(getByTestId("link-popup-save-button"));
+
+    // Assert
+    expect(document.execCommand).toHaveBeenCalledWith(
+      "insertHTML",
+      false,
+      `<a href="https://www.facebook.com">Facebook</a>`
+    );
+  });
+
+  it("should create a link with url as text when saved and target null", () => {
+    // Arrange
+    linkInfo.target = null;
+    const { getByTestId } = renderComponent();
+    fireEvent.change(getByTestId("link-popup-url-input"), {
+      target: { value: "https://www.facebook.com" },
+    });
+
+    // Act
+    fireEvent.click(getByTestId("link-popup-save-button"));
+
+    // Assert
+    expect(document.execCommand).toHaveBeenCalledWith(
+      "insertHTML",
+      false,
+      `<a href="https://www.facebook.com">https://www.facebook.com</a>`
     );
   });
 });
