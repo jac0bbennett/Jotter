@@ -7,6 +7,7 @@ import { describe, it, expect, beforeAll, vi } from "vitest";
 
 describe("useTheme", () => {
   beforeAll(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const globalAny: any = global;
     globalAny.chrome = chromeMock;
     globalAny.IS_REACT_ACT_ENVIRONMENT = true;
