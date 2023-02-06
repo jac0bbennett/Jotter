@@ -58,7 +58,8 @@ const LinkPopup = forwardRef(
         } else if (
           (linkPopupRef.current && linkPopupRef.current.contains(e.target)) ||
           e.target.getAttribute("data-testid") === "create-link" ||
-          e.target.classList.contains("link-popup-option")
+          (e.target.classList.contains("link-popup-option") &&
+            !e.target.classList.contains("link-popup-remove-button"))
         ) {
           setShowLinkPopup(true);
         } else {
@@ -177,7 +178,7 @@ const LinkPopup = forwardRef(
                   edit
                 </i>
                 <i
-                  className="material-icons link-popup-option"
+                  className="material-icons link-popup-option link-popup-remove-button"
                   onClick={removeLink}
                   data-testid="link-popup-remove-button"
                 >

@@ -7,15 +7,14 @@ import { describe, it, expect, beforeAll, vi } from "vitest";
 
 describe("useTheme", () => {
   beforeAll(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    global.chrome = chromeMock as any;
+    const globalAny: any = global;
+    globalAny.chrome = chromeMock;
+    globalAny.IS_REACT_ACT_ENVIRONMENT = true;
 
     Object.defineProperty(global.document, "documentElement", {
       writable: true,
       value: document.createElement("div"),
     });
-
-	global.IS_REACT_ACT_ENVIRONMENT = true;
   });
 
   it("should return the default theme", () => {

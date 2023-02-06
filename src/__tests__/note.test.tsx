@@ -74,7 +74,7 @@ describe("note", () => {
 
     // Assert
     expect(notesState.setNoteContent).toHaveBeenCalledTimes(1);
-    expect(notesState.setNoteContent).toHaveBeenCalledWith("test");
+    expect(notesState.setNoteContent).toHaveBeenLastCalledWith("test");
     expect(notesState.deleteNotes).toHaveBeenCalledTimes(0);
     expect(notesState.addNote).toHaveBeenCalledTimes(0);
     expect(notesState.syncCurNote).toHaveBeenCalledTimes(0);
@@ -93,13 +93,13 @@ describe("note", () => {
 
     // Assert
     expect(notesState.setNoteContent).toHaveBeenCalledTimes(1);
-    expect(notesState.setNoteContent).toHaveBeenCalledWith("test");
+    expect(notesState.setNoteContent).toHaveBeenLastCalledWith("test");
     expect(notesState.deleteNotes).toHaveBeenCalledTimes(0);
     expect(notesState.addNote).toHaveBeenCalledTimes(0);
     expect(notesState.syncCurNote).toHaveBeenCalledTimes(0);
     expect(notesState.syncAllNotes).toHaveBeenCalledTimes(0);
     expect(notesState.syncNoteContent).toHaveBeenCalledTimes(1);
-    expect(notesState.syncNoteContent).toHaveBeenCalledWith(
+    expect(notesState.syncNoteContent).toHaveBeenLastCalledWith(
       "test",
       expect.any(Function)
     );
@@ -124,7 +124,7 @@ describe("note", () => {
     expect(notesState.syncCurNote).toHaveBeenCalledTimes(0);
     expect(notesState.syncAllNotes).toHaveBeenCalledTimes(0);
     expect(notesState.syncNoteContent).toHaveBeenCalledTimes(1);
-    expect(notesState.syncNoteContent).toHaveBeenCalledWith(
+    expect(notesState.syncNoteContent).toHaveBeenLastCalledWith(
       "testing",
       expect.any(Function)
     );
@@ -199,7 +199,7 @@ describe("note", () => {
 
     // Assert
     expect(setView).toHaveBeenCalledTimes(1);
-    expect(setView).toHaveBeenCalledWith(Views.ALLNOTES);
+    expect(setView).toHaveBeenLastCalledWith(Views.ALLNOTES);
   });
 
   it("should save and exit when clicking exit button", async () => {
@@ -215,7 +215,7 @@ describe("note", () => {
     expect(notesState.setNoteContent).toHaveBeenCalledTimes(0);
     expect(notesState.deleteNotes).toHaveBeenCalledTimes(0);
     expect(notesState.syncNoteContent).toHaveBeenCalledTimes(1);
-    expect(notesState.syncNoteContent).toHaveBeenCalledWith(
+    expect(notesState.syncNoteContent).toHaveBeenLastCalledWith(
       "testing",
       expect.any(Function)
     );
@@ -234,10 +234,10 @@ describe("note", () => {
 
     // Assert
     expect(notesState.setNoteContent).toHaveBeenCalledTimes(1);
-    expect(notesState.setNoteContent).toHaveBeenCalledWith("test");
+    expect(notesState.setNoteContent).toHaveBeenLastCalledWith("test");
     expect(notesState.deleteNotes).toHaveBeenCalledTimes(0);
     expect(notesState.syncNoteContent).toHaveBeenCalledTimes(1);
-    expect(notesState.syncNoteContent).toHaveBeenCalledWith(
+    expect(notesState.syncNoteContent).toHaveBeenLastCalledWith(
       notesState.noteContent,
       expect.any(Function)
     );
@@ -256,7 +256,7 @@ describe("note", () => {
 
     // Assert
     expect(theme.setTheme).toHaveBeenCalledTimes(1);
-    expect(theme.setTheme).toHaveBeenCalledWith(Themes.ALT);
+    expect(theme.setTheme).toHaveBeenLastCalledWith(Themes.ALT);
   });
 
   it("should change back to default theme when long pressing logo from alt theme", async () => {
@@ -274,7 +274,7 @@ describe("note", () => {
 
     // Assert
     expect(theme.setTheme).toHaveBeenCalledTimes(1);
-    expect(theme.setTheme).toHaveBeenCalledWith(Themes.DEFAULT);
+    expect(theme.setTheme).toHaveBeenLastCalledWith(Themes.DEFAULT);
   });
 
   it("should already be alt theme", async () => {
@@ -304,7 +304,7 @@ describe("note", () => {
 
     // Assert
     expect(theme.setTheme).toHaveBeenCalledTimes(1);
-    expect(theme.setTheme).toHaveBeenCalledWith(Themes.JONAH);
+    expect(theme.setTheme).toHaveBeenLastCalledWith(Themes.JONAH);
   });
 
   it("should not change to jonah theme when long pressing char count at arbitrary value", async () => {
@@ -351,7 +351,7 @@ describe("note", () => {
 
     // Assert
     expect(theme.setTheme).toHaveBeenCalledTimes(1);
-    expect(theme.setTheme).toHaveBeenCalledWith(Themes.DEFAULT);
+    expect(theme.setTheme).toHaveBeenLastCalledWith(Themes.DEFAULT);
   });
 
   it("should display error when setNoteContent fails", async () => {
@@ -384,7 +384,7 @@ describe("note", () => {
 
     // Assert
     expect(global.document.execCommand).toHaveBeenCalledTimes(1);
-    expect(global.document.execCommand).toHaveBeenCalledWith(
+    expect(global.document.execCommand).toHaveBeenLastCalledWith(
       "insertHtml",
       false,
       "testing stuff"
@@ -403,7 +403,7 @@ describe("note", () => {
 
     // Assert
     expect(global.document.execCommand).toHaveBeenCalledTimes(1);
-    expect(global.document.execCommand).toHaveBeenCalledWith(
+    expect(global.document.execCommand).toHaveBeenLastCalledWith(
       "insertHtml",
       false,
       'testing stuff <a href="https://google.com">https://google.com</a> and other things'
@@ -421,7 +421,7 @@ describe("note", () => {
 
     // Assert
     expect(global.document.execCommand).toHaveBeenCalledTimes(1);
-    expect(global.document.execCommand).toHaveBeenCalledWith(
+    expect(global.document.execCommand).toHaveBeenLastCalledWith(
       "insertText",
       false,
       "    "

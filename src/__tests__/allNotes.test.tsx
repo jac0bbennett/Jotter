@@ -58,7 +58,7 @@ describe("AllNotes", () => {
 
     // Assert
     expect(setView).toHaveBeenCalledOnce();
-    expect(setView).toHaveBeenCalledWith(Views.NOTE);
+    expect(setView).toHaveBeenLastCalledWith(Views.NOTE);
   });
 
   it("should call syncCurNote when note is clicked", () => {
@@ -71,7 +71,7 @@ describe("AllNotes", () => {
 
     // Assert
     expect(notesState.syncCurNote).toHaveBeenCalledOnce();
-    expect(notesState.syncCurNote).toHaveBeenCalledWith("note1");
+    expect(notesState.syncCurNote).toHaveBeenLastCalledWith("note1");
   });
 
   it("should call setView when close all notes is clicked", () => {
@@ -85,7 +85,7 @@ describe("AllNotes", () => {
 
     // Assert
     expect(setView).toHaveBeenCalledOnce();
-    expect(setView).toHaveBeenCalledWith(Views.NOTE);
+    expect(setView).toHaveBeenLastCalledWith(Views.NOTE);
   });
 
   it("should turn on delete mode when delete toggle is clicked", () => {
@@ -158,7 +158,7 @@ describe("AllNotes", () => {
 
     // Assert
     expect(notesState.deleteNotes).toHaveBeenCalledOnce();
-    expect(notesState.deleteNotes).toHaveBeenCalledWith(["note1"]);
+    expect(notesState.deleteNotes).toHaveBeenLastCalledWith(["note1"]);
   });
 
   it("should call deleteNotes with notes when multiple notes are selected and confirm delete is clicked", () => {
@@ -175,7 +175,7 @@ describe("AllNotes", () => {
 
     // Assert
     expect(notesState.deleteNotes).toHaveBeenCalledOnce();
-    expect(notesState.deleteNotes).toHaveBeenCalledWith(["note1", "note2"]);
+    expect(notesState.deleteNotes).toHaveBeenLastCalledWith(["note1", "note2"]);
   });
 
   it("should call createNote when note name is entered and create note is clicked", () => {
@@ -191,7 +191,7 @@ describe("AllNotes", () => {
 
     // Assert
     expect(notesState.addNote).toHaveBeenCalledOnce();
-    expect(notesState.addNote).toHaveBeenCalledWith("note4");
+    expect(notesState.addNote).toHaveBeenLastCalledWith("note4");
   });
 
   it("should show error message if add note fails", () => {

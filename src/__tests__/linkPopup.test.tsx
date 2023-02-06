@@ -122,7 +122,7 @@ describe("LinkPopup", () => {
     fireEvent.click(getByTestId("link-popup-remove-button"));
 
     // Assert
-    expect(setNote).toBeCalledWith("Google");
+    expect(setNote).toHaveBeenLastCalledWith("Google");
   });
 
   it("should add new link when saved with target null", () => {
@@ -140,7 +140,7 @@ describe("LinkPopup", () => {
     fireEvent.click(getByTestId("link-popup-save-button"));
 
     // Assert
-    expect(document.execCommand).toHaveBeenCalledWith(
+    expect(document.execCommand).toHaveBeenLastCalledWith(
       "insertHTML",
       false,
       `<a href="https://www.facebook.com">Facebook</a>`
@@ -159,7 +159,7 @@ describe("LinkPopup", () => {
     fireEvent.click(getByTestId("link-popup-save-button"));
 
     // Assert
-    expect(document.execCommand).toHaveBeenCalledWith(
+    expect(document.execCommand).toHaveBeenLastCalledWith(
       "insertHTML",
       false,
       `<a href="https://www.facebook.com">https://www.facebook.com</a>`

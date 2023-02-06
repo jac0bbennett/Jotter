@@ -8,8 +8,9 @@ import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
 describe("useNotes", () => {
   beforeAll(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    global.chrome = chromeMock as any;
-	global.IS_REACT_ACT_ENVIRONMENT = true;
+    const globalAny: any = global;
+    globalAny.chrome = chromeMock;
+    globalAny.IS_REACT_ACT_ENVIRONMENT = true;
   });
 
   afterEach(() => {
@@ -53,11 +54,16 @@ describe("useNotes", () => {
     expect(result.current.allNotes).toEqual(["main"]);
     expect(result.current.curNote).toEqual("main");
     expect(result.current.noteContent).toEqual("");
+    expect(chromeMock.storage.sync.get).toHaveBeenCalledTimes(2);
     expect(chromeMock.storage.sync.get).toHaveBeenCalledWith(
       ["curNote", "allNotes"],
       expect.any(Function)
     );
-    expect(chromeMock.storage.sync.set).toHaveBeenCalledWith({
+    expect(chromeMock.storage.sync.get).toHaveBeenLastCalledWith(
+      "main",
+      expect.any(Function)
+    );
+    expect(chromeMock.storage.sync.set).toHaveBeenLastCalledWith({
       curNote: "main",
       allNotes: ["main"],
     });
@@ -81,11 +87,16 @@ describe("useNotes", () => {
     expect(result.current.allNotes).toEqual([expectedNoteName, "main"]);
     expect(result.current.curNote).toEqual(expectedNoteName);
     expect(result.current.noteContent).toEqual(expectedNoteContent);
+    expect(chromeMock.storage.sync.get).toHaveBeenCalledTimes(2);
     expect(chromeMock.storage.sync.get).toHaveBeenCalledWith(
       ["curNote", "allNotes"],
       expect.any(Function)
     );
-    expect(chromeMock.storage.sync.set).toHaveBeenCalledWith({
+    expect(chromeMock.storage.sync.get).toHaveBeenLastCalledWith(
+      expectedNoteName,
+      expect.any(Function)
+    );
+    expect(chromeMock.storage.sync.set).toHaveBeenLastCalledWith({
       curNote: expectedNoteName,
       allNotes: [expectedNoteName, "main"],
     });
@@ -109,8 +120,13 @@ describe("useNotes", () => {
     expect(result.current.allNotes).toEqual([expectedNoteName, "main"]);
     expect(result.current.curNote).toEqual(expectedNoteName);
     expect(result.current.noteContent).toEqual(expectedNoteContent);
+    expect(chromeMock.storage.sync.get).toHaveBeenCalledTimes(2);
     expect(chromeMock.storage.sync.get).toHaveBeenCalledWith(
       ["curNote", "allNotes"],
+      expect.any(Function)
+    );
+    expect(chromeMock.storage.sync.get).toHaveBeenLastCalledWith(
+      expectedNoteName,
       expect.any(Function)
     );
     expect(chromeMock.storage.sync.set).toHaveBeenCalledTimes(0);
@@ -474,12 +490,12 @@ describe("useNotes", () => {
     expect(result.current.allNotes).toEqual(["main"]);
     expect(chromeMock.storage.sync.get).toHaveBeenCalledTimes(2);
     expect(chromeMock.storage.sync.set).toHaveBeenCalledTimes(1);
-    expect(chromeMock.storage.sync.set).toHaveBeenCalledWith({
+    expect(chromeMock.storage.sync.set).toHaveBeenLastCalledWith({
       allNotes: ["main"],
       curNote: "main",
     });
     expect(chromeMock.storage.sync.remove).toHaveBeenCalledTimes(1);
-    expect(chromeMock.storage.sync.remove).toHaveBeenCalledWith(["test"]);
+    expect(chromeMock.storage.sync.remove).toHaveBeenLastCalledWith(["test"]);
   });
 
   it("should delete multiple notes", async () => {
@@ -498,12 +514,12 @@ describe("useNotes", () => {
     expect(result.current.allNotes).toEqual(["main"]);
     expect(chromeMock.storage.sync.get).toHaveBeenCalledTimes(2);
     expect(chromeMock.storage.sync.set).toHaveBeenCalledTimes(1);
-    expect(chromeMock.storage.sync.set).toHaveBeenCalledWith({
+    expect(chromeMock.storage.sync.set).toHaveBeenLastCalledWith({
       allNotes: ["main"],
       curNote: "main",
     });
     expect(chromeMock.storage.sync.remove).toHaveBeenCalledTimes(1);
-    expect(chromeMock.storage.sync.remove).toHaveBeenCalledWith([
+    expect(chromeMock.storage.sync.remove).toHaveBeenLastCalledWith([
       "test",
       "test2",
     ]);
@@ -525,12 +541,12 @@ describe("useNotes", () => {
     expect(result.current.allNotes).toEqual(["main"]);
     expect(chromeMock.storage.sync.get).toHaveBeenCalledTimes(2);
     expect(chromeMock.storage.sync.set).toHaveBeenCalledTimes(1);
-    expect(chromeMock.storage.sync.set).toHaveBeenCalledWith({
+    expect(chromeMock.storage.sync.set).toHaveBeenLastCalledWith({
       allNotes: ["main"],
       curNote: "main",
     });
     expect(chromeMock.storage.sync.remove).toHaveBeenCalledTimes(1);
-    expect(chromeMock.storage.sync.remove).toHaveBeenCalledWith(["test"]);
+    expect(chromeMock.storage.sync.remove).toHaveBeenLastCalledWith(["test"]);
   });
 
   it("should delete all notes", async () => {
@@ -549,12 +565,12 @@ describe("useNotes", () => {
     expect(result.current.allNotes).toEqual(["main"]);
     expect(chromeMock.storage.sync.get).toHaveBeenCalledTimes(2);
     expect(chromeMock.storage.sync.set).toHaveBeenCalledTimes(1);
-    expect(chromeMock.storage.sync.set).toHaveBeenCalledWith({
+    expect(chromeMock.storage.sync.set).toHaveBeenLastCalledWith({
       allNotes: ["main"],
       curNote: "main",
     });
     expect(chromeMock.storage.sync.remove).toHaveBeenCalledTimes(1);
-    expect(chromeMock.storage.sync.remove).toHaveBeenCalledWith([
+    expect(chromeMock.storage.sync.remove).toHaveBeenLastCalledWith([
       "main",
       "test",
     ]);
