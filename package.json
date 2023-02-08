@@ -1,21 +1,27 @@
 {
   "name": "jotter-2",
-  "version": "0.1.0",
+  "version": "2.0.4.2",
   "private": true,
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.9",
-    "@testing-library/react": "^11.2.5",
-    "@testing-library/user-event": "^12.8.3",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
-    "web-vitals": "^1.1.1"
+    "@babel/highlight": "^7.18.6",
+    "@babel/template": "^7.20.7",
+    "@babel/traverse": "^7.20.13",
+    "@types/chrome": "^0.0.210",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "babel": "^6.23.0",
+    "gensync": "^1.0.0-beta.2",
+    "react": "^18.2.0",
+    "react-contenteditable": "^3.3.6",
+    "react-dom": "^18.2.0",
+    "semver": "^7.3.8"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "eslintConfig": {
     "extends": [
@@ -23,20 +29,32 @@
       "react-app/jest"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
-    "react-contenteditable": "^3.3.5",
-    "use-long-press": "^1.0.5"
+    "@babel/helper-compilation-targets": "^7.20.7",
+    "@babel/helpers": "^7.20.13",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-typescript": "^7.18.6",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3",
+    "@types/testing-library__react": "^10.2.0",
+    "@typescript-eslint/eslint-plugin": "^5.50.0",
+    "@typescript-eslint/parser": "^5.50.0",
+    "@vitejs/plugin-react": "^3.0.1",
+    "@vitest/coverage-c8": "^0.28.3",
+    "autoprefixer": "^10.4.13",
+    "eslint": "^8.32.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "jest-environment-jsdom": "^29.4.1",
+    "postcss": "^8.4.21",
+    "prettier": "^2.8.3",
+    "prettier-plugin-tailwindcss": "^0.2.2",
+    "tailwindcss": "^3.2.4",
+    "ts-node": "^10.9.1",
+    "use-long-press": "^2.0.2",
+    "vite": "^4.0.4",
+    "vite-plugin-svgr": "^2.4.0",
+    "vite-tsconfig-paths": "^4.0.5",
+    "vitest": "^0.28.3"
   }
 }
